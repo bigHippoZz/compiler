@@ -14,9 +14,10 @@ import { ParenthesizedExpressionSyntax } from "../syntax/ParenthesizedExpression
 import { NamedExpressionSyntax } from "../syntax/NamedExpressionSyntax";
 import { AssignmentExpressionSyntax } from "../syntax/AssignmentExpressionSyntax";
 import { GlobalVariableDeclaration } from "../Compilation";
-import { Object } from "../../utils";
 import { BoundVariableExpression } from "./BoundVariableExpression";
 import { BoundAssignmentExpression } from "./BoundAssignmentExpression";
+import { Object } from "../../utils";
+import { VariableSymbol } from "../VariableSymbol";
 
 export class Binder {
 	public get variables(): GlobalVariableDeclaration {
@@ -95,8 +96,14 @@ export class Binder {
 	 */
 	private bindNameExpression(syntax: NamedExpressionSyntax): BoundExpression {
 		const name = syntax.identifierToken.text as string;
-		let value;
-		if (!Reflect.has(this.variables, name)) {
+
+		let variable: VariableSymbol | null = null;
+
+		for (const key of this.variables.keys()) {
+			name === key.name && (variable = key);
+		}
+
+		if (variable === null) {
 			this.diagnostics.reportUndefinedName(
 				syntax.identifierToken.span,
 				name
@@ -105,12 +112,7 @@ export class Binder {
 			return new BoundLiteralExpression(undefined);
 		}
 
-		value = Reflect.get(this.variables, name);
-
-		return new BoundVariableExpression(
-			name,
-			Object.getPrimitiveObjectType(value)
-		);
+		return new BoundVariableExpression(variable!);
 	}
 
 	/**
@@ -121,8 +123,24 @@ export class Binder {
 		syntax: AssignmentExpressionSyntax
 	): BoundExpression {
 		const name = syntax.identifierToken.text as string;
+
 		const boundExpression = this.bindExpression(syntax.expression);
-		return new BoundAssignmentExpression(name, boundExpression);
+
+		let existingVariable: VariableSymbol | null = null;
+
+		for (const key of this.variables.keys()) {
+			name === key.name && (existingVariable = key);
+		}
+
+		if (existingVariable !== null) {
+			this.variables.delete(existingVariable);
+		}
+
+		const variable = new VariableSymbol(name, boundExpression.type);
+
+		this.variables.set(variable, null);
+
+		return new BoundAssignmentExpression(variable, boundExpression);
 	}
 
 	/**
@@ -140,7 +158,6 @@ export class Binder {
 			boundOperand.type
 		);
 
-		console.log(boundOperand);
 		if (boundOperator === null) {
 			this._diagnostics.reportUndefinedUnaryOperator(
 				syntax.operationToken.span,

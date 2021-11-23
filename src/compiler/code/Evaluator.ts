@@ -35,12 +35,12 @@ export class Evaluator {
 		 * 处理变量
 		 */
 		if (node instanceof BoundVariableExpression) {
-			return this.variables[node.name];
+			return this.variables.get(node.variable);
 		}
 
 		if (node instanceof BoundAssignmentExpression) {
 			const value = this._evaluateExpression(node.expression);
-			this._variables[node.name] = value;
+			this._variables.set(node.variable, value);
 			return value;
 		}
 

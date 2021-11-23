@@ -2,12 +2,11 @@ import { SyntaxTree } from "./syntax/SyntaxTree";
 import { Binder } from "./binding/Binder";
 import { Evaluator } from "./Evaluator";
 import { EvaluationResult } from "./EvaluationResult";
+import { VariableSymbol } from "./VariableSymbol";
 
-export type GlobalVariableDeclaration = Record<string, any>;
+export type GlobalVariableDeclaration = Map<VariableSymbol, any>;
 
-const defaultGlobalVariableDeclaration: GlobalVariableDeclaration =
-	Object.create(null);
-
+const defaultGlobalVariableDeclaration: GlobalVariableDeclaration = new Map();
 export class Compilation {
 	constructor(public syntax: SyntaxTree) {}
 
@@ -18,7 +17,9 @@ export class Compilation {
 
 		const boundExpression = binder.bindExpression(this.syntax.root);
 
-		const diagnostics = this.syntax.diagnostics.diagnostics;
+		const error = this.syntax.diagnostics;
+
+		const diagnostics = error.addRange(binder.diagnostics).diagnostics;
 
 		if (diagnostics.length) {
 			return new EvaluationResult(diagnostics, null);

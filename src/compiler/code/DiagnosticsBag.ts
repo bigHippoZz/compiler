@@ -15,6 +15,7 @@ export class DiagnosticsBag {
 	 */
 	public addRange(diagnostics: DiagnosticsBag) {
 		this.diagnostics.push(...diagnostics.diagnostics);
+		return this;
 	}
 
 	public report(span: TextSpan, message: string) {

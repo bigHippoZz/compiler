@@ -1,6 +1,5 @@
 import { BinaryExpressionSyntax } from "./BinaryExpressionSyntax";
 import { ExpressionSyntax } from "./ExpressionSyntax";
-import { Lex } from "./Lexer";
 import { LiteralExpressionSyntax } from "./LiteralExpressionSyntax";
 import { ParenthesizedExpressionSyntax } from "./ParenthesizedExpressionSyntax";
 import { SyntaxFacts } from "./SyntaxFacts";
@@ -11,6 +10,7 @@ import { UnaryExpressionSyntax } from "./UnaryExpressionSyntax";
 import { DiagnosticsBag } from "../DiagnosticsBag";
 import { AssignmentExpressionSyntax } from "./AssignmentExpressionSyntax";
 import { NamedExpressionSyntax } from "./NamedExpressionSyntax";
+import { Lex } from "./Lexer";
 
 export class Parser {
 	private _syntaxTokens: SyntaxToken[] = [];

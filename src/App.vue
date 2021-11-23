@@ -1,6 +1,5 @@
 <template>
-	<div ref="termContainer"></div>
-	<!-- <a-row>
+	<a-row>
 		<a-col :span="18">
 			<a-textarea
 				v-model="input"
@@ -25,31 +24,16 @@
 	</div>
 	<a-alert v-for="item in alert" :key="item" type="error">{{ item }}</a-alert>
 	<a-divider /> 
-	<h1>{{ result }}</h1> -->
+	<h1>{{ result }}</h1>
 </template>
 
 <script setup lang="ts">
-import { Terminal } from "xterm";
-import { FitAddon } from "xterm-addon-fit";
-
 import { SyntaxTree } from "./compiler/code/syntax/SyntaxTree";
 import { FormatTree } from "./compiler/utils/fmt";
 import { onMounted, ref, unref, watch } from "vue";
 
 import { Compilation } from "./compiler/code/Compilation";
 import { Diagnostic } from "./compiler/code/Diagnostic";
-
-const terminal = new Terminal();
-const fitAddon = new FitAddon();
-
-const termContainer = ref<HTMLElement | null>(null);
-onMounted(() => {
-	var term = new Terminal();
-	term.open(termContainer.value!);
-	term.onData(function (data) {
-		console.log(data);
-	});
-});
 
 function useProcessor() {
 	const input = ref<string>("");
