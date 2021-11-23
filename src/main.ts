@@ -1,9 +1,10 @@
 import { createApp } from "vue";
+import ArcoVue from "@arco-design/web-vue";
 import App from "./App.vue";
-import { Parser } from "./compiler/code/main";
+import "@arco-design/web-vue/dist/arco.css";
 
-createApp(App).mount("#app");
+import "xterm/css/xterm.css";
 
-const parser = new Parser("2 + 23 ");
-
-console.log(parser);
+const app = createApp(App);
+app.use(ArcoVue);
+app.mount("#app");
