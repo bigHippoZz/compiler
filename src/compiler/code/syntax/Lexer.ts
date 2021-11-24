@@ -1,12 +1,24 @@
-import { String } from "../../utils";
+import { StringTools } from "../../utils";
 import { SyntaxKind } from "./SyntaxKind";
 import { SyntaxToken } from "./SyntaxToken";
 import { SyntaxFacts } from "./SyntaxFacts";
 import { DiagnosticsBag } from "../DiagnosticsBag";
-import { TextSpan } from "../TextSpan";
+import { TextSpan } from "../text/TextSpan";
 
 export class Lex {
 	private _position: number = 0;
+	/**
+	 * 起止位置
+	 */
+	private _start: number = 0;
+	/**
+	 * 语法类型
+	 */
+	private _kind: SyntaxKind = SyntaxKind.BadToken;
+	/**
+	 * 当前 value
+	 */
+	private _value: any = null;
 
 	public diagnostics: DiagnosticsBag = new DiagnosticsBag();
 
@@ -14,6 +26,10 @@ export class Lex {
 
 	private get current(): string {
 		return this.peek(0);
+	}
+
+	private get lookahead(): string {
+		return this.peek(1);
 	}
 
 	private peek(offset: number): string {
@@ -26,188 +42,157 @@ export class Lex {
 		return this._text[index];
 	}
 
-	private get lookahead(): string {
-		return this.peek(1);
-	}
-
 	private next(): void {
 		this._position++;
 	}
 
-	public nextToken(): SyntaxToken {
-		/**
-		 * 遍历字符串到达句尾,返回句尾的token
-		 */
-		if (this._position >= this._text.length) {
-			return new SyntaxToken(
-				SyntaxKind.EndOfFileToken,
-				this._position,
-				"\0",
-				null
-			);
+	private readWhitespaceToken() {
+		while (StringTools.isWhitespace(this.current)) {
+			this.next();
+		}
+		this._kind = SyntaxKind.WhiteSpaceToken;
+	}
+
+	private readNumberToken() {
+		while (StringTools.isNumber(this.current)) {
+			this.next();
 		}
 
-		if (String.isNumber(this.current)) {
-			const start = this._position;
+		const text = this._text.substring(this._start, this._position);
 
-			while (String.isNumber(this.current)) {
-				this.next();
-			}
-			const text = this._text.substring(start, this._position);
+		this._value = Number(text);
 
-			const value = Number(text);
-
-			if (isNaN(value)) {
-				this.diagnostics.reportInvalidNumber(
-					new TextSpan(start, this._position - start),
-					text,
-					typeof value
-				);
-				// this.diagnostics.push(`The number ${text} isn't valid`);
-			}
-
-			return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
-		}
-
-		if (String.isWhitespace(this.current)) {
-			const start = this._position;
-
-			while (String.isWhitespace(this.current)) {
-				this.next();
-			}
-
-			const text = this._text.substring(start, this._position);
-
-			return new SyntaxToken(
-				SyntaxKind.WhiteSpaceToken,
-				start,
+		if (isNaN(this._value)) {
+			this.diagnostics.reportInvalidNumber(
+				new TextSpan(this._start, this._position - this._start),
 				text,
-				null
+				typeof this._value
 			);
 		}
 
-		if (String.isWord(this.current)) {
-			const start = this._position;
-			while (String.isWord(this.current)) {
-				this.next();
-			}
+		this._kind = SyntaxKind.NumberToken;
+	}
 
-			const text = this._text.substring(start, this._position);
-			const kind = SyntaxFacts.getKeywordKind(text);
-
-			return new SyntaxToken(kind, start, text, null);
+	private readIdentifierOrKeyword() {
+		while (StringTools.isWord(this.current)) {
+			this.next();
 		}
+
+		const length = this._position - this._start;
+
+		const text = this._text.substr(this._start, length);
+
+		this._kind = SyntaxFacts.getKeywordKind(text);
+	}
+
+	private _validateRE(RE: RegExp) {
+		return (this.current.match(RE) || {}).input;
+	}
+
+	public lex(): SyntaxToken {
+		this._start = this._position;
+		this._kind = SyntaxKind.BadToken;
+		this._value = null;
 
 		switch (this.current) {
+			case "\0":
+				this._kind = SyntaxKind.EndOfFileToken;
+				break;
 			case "+":
-				return new SyntaxToken(
-					SyntaxKind.PlusToken,
-					this._position++,
-					"+",
-					null
-				);
-
+				this._kind = SyntaxKind.PlusToken;
+				this.next();
+				break;
 			case "-":
-				return new SyntaxToken(
-					SyntaxKind.MinusToken,
-					this._position++,
-					"-",
-					null
-				);
-			case "*":
-				return new SyntaxToken(
-					SyntaxKind.StarToken,
-					this._position++,
-					"*",
-					null
-				);
-			case "/":
-				return new SyntaxToken(
-					SyntaxKind.SlashToken,
-					this._position++,
-					"/",
-					null
-				);
-			case "(":
-				return new SyntaxToken(
-					SyntaxKind.OpenParenthesesToken,
-					this._position++,
-					"(",
-					null
-				);
-			case ")":
-				return new SyntaxToken(
-					SyntaxKind.CloseParenthesesToken,
-					this._position++,
-					")",
-					null
-				);
+				this._kind = SyntaxKind.MinusToken;
+				this.next();
+				break;
 
-			case "!":
-				if (this.lookahead === "=") {
-					return new SyntaxToken(
-						SyntaxKind.BangEqualsToken,
-						(this._position += 2),
-						"!=",
-						null
-					);
-				} else {
-					return new SyntaxToken(
-						SyntaxKind.BangToken,
-						this._position++,
-						"!",
-						null
-					);
-				}
+			case "*":
+				this._kind = SyntaxKind.StarToken;
+				this.next();
+				break;
+
+			case "/":
+				this._kind = SyntaxKind.SlashToken;
+				this.next();
+				break;
+			case "(":
+				this._kind = SyntaxKind.OpenParenthesesToken;
+				this.next();
+				break;
+			case ")":
+				this._kind = SyntaxKind.CloseParenthesesToken;
+				this.next();
+				break;
 
 			case "&":
-				if (this.lookahead === "&") {
-					return new SyntaxToken(
-						SyntaxKind.AmpersandAmpersandToken,
-						(this._position += 2),
-						"&&",
-						null
-					);
+				if (this.lookahead == "&") {
+					this._kind = SyntaxKind.AmpersandAmpersandToken;
+					this._position += 2;
+					break;
 				}
 				break;
+
 			case "|":
-				if (this.lookahead === "|") {
-					return new SyntaxToken(
-						SyntaxKind.PipePipeToken,
-						(this._position += 2),
-						"||",
-						null
-					);
+				if (this.lookahead == "|") {
+					this._kind = SyntaxKind.PipePipeToken;
+					this._position += 2;
+					break;
 				}
 				break;
+
 			case "=":
-				if (this.lookahead === "=") {
-					return new SyntaxToken(
-						SyntaxKind.EqualsEqualsToken,
-						(this._position += 2),
-						"==",
-						null
-					);
+				this.next();
+				if (this.current !== "=") {
+					this._kind = SyntaxKind.EqualsToken;
 				} else {
-					return new SyntaxToken(
-						SyntaxKind.EqualsToken,
-						this._position++,
-						"=",
-						null
-					);
+					this.next();
+					this._kind = SyntaxKind.EqualsEqualsToken;
 				}
+				break;
+
+			case "!":
+				this.next();
+				// @ts-ignore
+				if (this.current !== "=") {
+					this._kind = SyntaxKind.BangToken;
+				} else {
+					this._kind = SyntaxKind.BangEqualsToken;
+					this.next();
+				}
+				break;
+
+			case this._validateRE(StringTools.numberRE):
+				this.readNumberToken();
+				break;
+
+			case " ":
+			case "\r":
+			case "\n":
+			case "\t":
+			case this._validateRE(StringTools.whitespaceRE):
+				this.readWhitespaceToken();
+				break;
+
+			case this._validateRE(StringTools.wordRE):
+				this.readIdentifierOrKeyword();
+				break;
+
+			default:
+				this.diagnostics.reportBadCharacter(
+					this._position,
+					this.current
+				);
+				this.next();
 				break;
 		}
 
-		// this.diagnostics.push(`ERROR: bad character input '${this.current}'`);
+		const length = this._position - this._start;
 
-		this.diagnostics.reportBadCharacter(this._position, this.current);
-		debugger;
-		return new SyntaxToken(
-			SyntaxKind.BadToken,
-			this._position++,
-			this._text.substr(this._position - 1, 1),
-			null
-		);
+		let text = SyntaxFacts.getText(this._kind);
+
+		if (text === null) text = this._text.substr(this._start, length);
+
+		return new SyntaxToken(this._kind, this._position, text, this._value);
 	}
 }

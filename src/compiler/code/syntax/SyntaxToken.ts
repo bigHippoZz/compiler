@@ -1,6 +1,6 @@
 import { SyntaxNode } from "./SyntaxNode";
 import { SyntaxKind } from "./SyntaxKind";
-import { TextSpan } from "../TextSpan";
+import { TextSpan } from "../text/TextSpan";
 
 export class SyntaxToken extends SyntaxNode {
 	private _span: TextSpan;

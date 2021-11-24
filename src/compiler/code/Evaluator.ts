@@ -7,6 +7,7 @@ import { BoundExpression } from "./binding/BoundExpression";
 import { GlobalVariableDeclaration } from "./Compilation";
 import { BoundVariableExpression } from "./binding/BoundVariableExpression";
 import { BoundAssignmentExpression } from "./binding/BoundAssignmentExpression";
+import { BoundNodeKind } from "./binding/BoundNodeKind";
 
 export class Evaluator {
 	constructor(
@@ -23,80 +24,81 @@ export class Evaluator {
 	}
 
 	private _evaluateExpression(node: BoundExpression): any {
-		/**
-		 * 处理基本字符
-		 */
-		if (node instanceof BoundLiteralExpression) {
-			// TODO tranv  => number
-			return node.value;
+		switch (node.kind) {
+			case BoundNodeKind.LiteralExpression:
+				return this.evaluateLiteralExpression(
+					node as BoundLiteralExpression
+				);
+			case BoundNodeKind.VariableExpression:
+				return this.evaluateVariableExpression(
+					node as BoundVariableExpression
+				);
+			case BoundNodeKind.AssignmentExpression:
+				return this.evaluateAssignmentExpression(
+					node as BoundAssignmentExpression
+				);
+			case BoundNodeKind.UnaryExpression:
+				return this.evaluateUnaryExpression(
+					node as BoundUnaryExpression
+				);
+			case BoundNodeKind.BinaryExpression:
+				return this.evaluateBinaryExpression(
+					node as BoundBinaryExpression
+				);
+			default:
+				throw new Error(`Unexpected node ${node.kind}`);
 		}
+	}
 
-		/**
-		 * 处理变量
-		 */
-		if (node instanceof BoundVariableExpression) {
-			return this.variables.get(node.variable);
+	private evaluateLiteralExpression(node: BoundLiteralExpression): any {
+		return node.value;
+	}
+	private evaluateVariableExpression(node: BoundVariableExpression): any {
+		return this.variables.get(node.variable);
+	}
+
+	private evaluateAssignmentExpression(node: BoundAssignmentExpression) {
+		const value = this._evaluateExpression(node.expression);
+		this._variables.set(node.variable, value);
+		return value;
+	}
+	private evaluateUnaryExpression(node: BoundUnaryExpression) {
+		const operand = this._evaluateExpression(node.operand);
+		switch (node.operate.kind) {
+			case BoundUnaryOperatorKind.Identity:
+				return Number(operand);
+			case BoundUnaryOperatorKind.Negation:
+				return -Number(operand);
+			case BoundUnaryOperatorKind.LogicalNegation:
+				return !operand;
+			default:
+				throw new Error(`Unexpected unary operator ${node.operate}`);
 		}
+	}
 
-		if (node instanceof BoundAssignmentExpression) {
-			const value = this._evaluateExpression(node.expression);
-			this._variables.set(node.variable, value);
-			return value;
+	private evaluateBinaryExpression(node: BoundBinaryExpression) {
+		const left = this._evaluateExpression(node.left);
+		const right = this._evaluateExpression(node.right);
+
+		switch (node.operate.kind) {
+			case BoundBinaryOperatorKind.Addition:
+				return left + right;
+			case BoundBinaryOperatorKind.Subtraction:
+				return left - right;
+			case BoundBinaryOperatorKind.Multiplication:
+				return left * right;
+			case BoundBinaryOperatorKind.Division:
+				return left / right;
+			case BoundBinaryOperatorKind.LogicalAnd:
+				return left && right;
+			case BoundBinaryOperatorKind.LogicalOr:
+				return left || right;
+			case BoundBinaryOperatorKind.Equals:
+				return left === right;
+			case BoundBinaryOperatorKind.NotEquals:
+				return left !== right;
+			default:
+				`Unexpected binary operator ${node.operate}`;
 		}
-
-		/**
-		 * 处理一元运算符
-		 */
-		if (node instanceof BoundUnaryExpression) {
-			const operand = this._evaluateExpression(node.operand);
-			switch (node.operate.kind) {
-				case BoundUnaryOperatorKind.Identity:
-					return Number(operand);
-				case BoundUnaryOperatorKind.Negation:
-					return -Number(operand);
-				case BoundUnaryOperatorKind.LogicalNegation:
-					return !operand;
-				default:
-					throw new Error(
-						`Unexpected unary operator ${node.operate}`
-					);
-			}
-		}
-
-		/**
-		 * 处理运算符
-		 */
-		if (node instanceof BoundBinaryExpression) {
-			const left = this._evaluateExpression(node.left);
-			const right = this._evaluateExpression(node.right);
-
-			switch (node.operate.kind) {
-				case BoundBinaryOperatorKind.Addition:
-					return left + right;
-				case BoundBinaryOperatorKind.Subtraction:
-					return left - right;
-				case BoundBinaryOperatorKind.Multiplication:
-					return left * right;
-				case BoundBinaryOperatorKind.Division:
-					return left / right;
-				case BoundBinaryOperatorKind.LogicalAnd:
-					return left && right;
-				case BoundBinaryOperatorKind.LogicalOr:
-					return left || right;
-				case BoundBinaryOperatorKind.Equals:
-					return left === right;
-				case BoundBinaryOperatorKind.NotEquals:
-					return left !== right;
-				default:
-					`Unexpected binary operator ${node.operate}`;
-			}
-		}
-		/**
-		 * 处理括号
-		 */
-		// if (node instanceof ParenthesizedExpressionSyntax) {
-		// 	return this._evaluateExpression(node.expression);
-		// }
-		throw new Error(`Unexpected node ${node.kind}`);
 	}
 }

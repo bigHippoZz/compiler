@@ -1,15 +1,15 @@
-export namespace String {
-	const numberRE = /\d/;
+export namespace StringTools {
+	export const numberRE: RegExp = /\d/;
 	export function isNumber(value: unknown): value is Number {
 		return numberRE.test(value as string);
 	}
 
-	const whitespaceRE = /\s/;
+	export const whitespaceRE = /\s/;
 	export function isWhitespace(value: unknown) {
 		return whitespaceRE.test(value as string);
 	}
 
-	const wordRE = /\w/;
+	export const wordRE = /\w/;
 	export function isWord(value: unknown) {
 		return wordRE.test(value as string);
 	}
@@ -19,7 +19,7 @@ export function isNumber(value: unknown): value is Number {
 	return typeof value === "number";
 }
 
-export namespace Object {
+export namespace ObjectTools {
 	/**
 	 * 获取基本对象的类型
 	 * @param value

@@ -47,4 +47,57 @@ export class SyntaxFacts {
 				return SyntaxKind.IdentifierToken;
 		}
 	}
+
+	public static *getBinaryOperatorKinds(): IterableIterator<SyntaxKind> {
+		const kinds = Object.values(SyntaxKind);
+		for (const kind of kinds) {
+			if (SyntaxFacts.getBinaryOperatorPrecedence(kind) > 0) {
+				yield kind;
+			}
+		}
+	}
+
+	public static *getUnaryOperatorKinds(): IterableIterator<SyntaxKind> {
+		const kinds = Object.values(SyntaxKind);
+		for (const kind of kinds) {
+			if (SyntaxFacts.getUnaryOperatorPrecedence(kind) > 0) {
+				yield kind;
+			}
+		}
+	}
+
+	public static getText(kind: SyntaxKind) {
+		switch (kind) {
+			case SyntaxKind.PlusToken:
+				return "+";
+			case SyntaxKind.MinusToken:
+				return "-";
+			case SyntaxKind.StarToken:
+				return "*";
+			case SyntaxKind.SlashToken:
+				return "/";
+			case SyntaxKind.BangToken:
+				return "!";
+			case SyntaxKind.EqualsToken:
+				return "=";
+			case SyntaxKind.AmpersandAmpersandToken:
+				return "&&";
+			case SyntaxKind.PipePipeToken:
+				return "||";
+			case SyntaxKind.BangEqualsToken:
+				return "!=";
+			case SyntaxKind.EqualsEqualsToken:
+				return "==";
+			case SyntaxKind.OpenParenthesesToken:
+				return "(";
+			case SyntaxKind.CloseParenthesesToken:
+				return ")";
+			case SyntaxKind.TrueKeyword:
+				return "true";
+			case SyntaxKind.FalseKeyword:
+				return "false";
+			default:
+				return null;
+		}
+	}
 }

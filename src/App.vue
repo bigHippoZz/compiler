@@ -29,11 +29,16 @@
 
 <script setup lang="ts">
 import { SyntaxTree } from "./compiler/code/syntax/SyntaxTree";
+
 import { FormatTree } from "./compiler/utils/fmt";
+
 import { onMounted, ref, unref, watch } from "vue";
 
 import { Compilation } from "./compiler/code/Compilation";
+
 import { Diagnostic } from "./compiler/code/Diagnostic";
+
+import * as htmlparser2 from "htmlparser2";
 
 function useProcessor() {
 	const input = ref<string>("");
@@ -48,6 +53,10 @@ function useProcessor() {
 			const ast = SyntaxTree.parse(unref(value));
 
 			tree.value = FormatTree.formatSyntaxTree(ast.root);
+
+			console.clear();
+
+			console.log(ast.root);
 
 			const evaluate = new Compilation(ast).evaluate();
 
@@ -77,7 +86,7 @@ const { input, tree, alert, result } = useProcessor();
 	font-family: Monaco;
 }
 .treeNode {
-	font-size: 20px;
-	line-height: 2;
+	font-size: 18px;
+	line-height: 1.8;
 }
 </style>

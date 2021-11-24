@@ -1,4 +1,4 @@
-import { TextSpan } from "./TextSpan";
+import { TextSpan } from "./text/TextSpan";
 
 export class Diagnostic {
 	public get message(): string {

@@ -8,14 +8,15 @@ export class BinaryExpressionSyntax extends ExpressionSyntax {
 		return SyntaxKind.BinaryExpression;
 	}
 
-	public getChildren(): SyntaxNode[] {
-		return [this.left, this.operatorToken, this.right];
-	}
 	constructor(
 		public left: ExpressionSyntax,
 		public operatorToken: SyntaxToken,
 		public right: ExpressionSyntax
 	) {
 		super();
+	}
+
+	public getChildren(): SyntaxNode[] {
+		return [this.left, this.operatorToken, this.right];
 	}
 }

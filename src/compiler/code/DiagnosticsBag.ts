@@ -1,5 +1,5 @@
 import { Diagnostic } from "./Diagnostic";
-import { TextSpan } from "./TextSpan";
+import { TextSpan } from "./text/TextSpan";
 import { SyntaxKind } from "./syntax/SyntaxKind";
 
 export class DiagnosticsBag {

@@ -16,7 +16,6 @@ import { AssignmentExpressionSyntax } from "../syntax/AssignmentExpressionSyntax
 import { GlobalVariableDeclaration } from "../Compilation";
 import { BoundVariableExpression } from "./BoundVariableExpression";
 import { BoundAssignmentExpression } from "./BoundAssignmentExpression";
-import { Object } from "../../utils";
 import { VariableSymbol } from "../VariableSymbol";
 
 export class Binder {

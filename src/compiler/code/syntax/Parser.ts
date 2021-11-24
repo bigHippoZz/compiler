@@ -23,7 +23,7 @@ export class Parser {
 		let lexer: Lex = new Lex(this._input);
 		let token: SyntaxToken;
 		do {
-			token = lexer.nextToken();
+			token = lexer.lex();
 			if (
 				token.kind !== SyntaxKind.BadToken &&
 				token.kind !== SyntaxKind.WhiteSpaceToken
@@ -134,33 +134,47 @@ export class Parser {
 	private parsePrimaryExpression(): ExpressionSyntax {
 		switch (this.current.kind) {
 			case SyntaxKind.OpenParenthesesToken:
-				const left = this.nextToken();
-				const expression = this.parseExpression();
-				const right = this.matchToken(SyntaxKind.CloseParenthesesToken);
-				return new ParenthesizedExpressionSyntax(
-					left,
-					expression,
-					right
-				);
+				return this.parseParenthesizedExpression();
 
 			case SyntaxKind.TrueKeyword:
 			case SyntaxKind.FalseKeyword:
-				const value = this.current.kind === SyntaxKind.TrueKeyword;
-				const keywordsToken = this.nextToken();
-				return new LiteralExpressionSyntax(keywordsToken, value);
+				return this.parseBooleanLiteral();
+
+			case SyntaxKind.NumberToken:
+				return this.parseNumberExpression();
 
 			case SyntaxKind.IdentifierToken:
-				const identifierToken = this.nextToken();
-				return new NamedExpressionSyntax(identifierToken);
-
 			default:
-				const numberToken = this.matchToken(SyntaxKind.NumberToken);
-				return new LiteralExpressionSyntax(numberToken);
+				return this.parseNameExpression();
 		}
 	}
 
+	private parseParenthesizedExpression() {
+		const left = this.matchToken(SyntaxKind.OpenParenthesesToken);
+		const expression = this.parseExpression();
+		const right = this.matchToken(SyntaxKind.CloseParenthesesToken);
+		return new ParenthesizedExpressionSyntax(left, expression, right);
+	}
+
+	private parseBooleanLiteral() {
+		const isTrue = this.current.kind === SyntaxKind.TrueKeyword;
+		const keywordsToken = isTrue
+			? this.matchToken(SyntaxKind.TrueKeyword)
+			: this.matchToken(SyntaxKind.FalseKeyword);
+		return new LiteralExpressionSyntax(keywordsToken, isTrue);
+	}
+
+	private parseNumberExpression() {
+		const numberToken = this.matchToken(SyntaxKind.NumberToken);
+		return new LiteralExpressionSyntax(numberToken);
+	}
+
+	private parseNameExpression() {
+		const identifierToken = this.matchToken(SyntaxKind.IdentifierToken);
+		return new NamedExpressionSyntax(identifierToken);
+	}
+
 	public parse() {
-		// ( a + b ) * c
 		const expression = this.parseExpression();
 		const endOfFileToken = this.matchToken(SyntaxKind.EndOfFileToken);
 		return new SyntaxTree(this.diagnostics, expression, endOfFileToken);
