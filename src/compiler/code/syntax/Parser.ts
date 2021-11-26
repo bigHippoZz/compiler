@@ -33,8 +33,6 @@ export class Parser {
 			}
 		} while (token.kind !== SyntaxKind.EndOfFileToken);
 
-		// this.diagnostics.push(...lexer.diagnostics);
-
 		this.diagnostics.addRange(lexer.diagnostics);
 	}
 
@@ -178,6 +176,11 @@ export class Parser {
 	public parse() {
 		const expression = this.parseExpression();
 		const endOfFileToken = this.matchToken(SyntaxKind.EndOfFileToken);
-		return new SyntaxTree(this.diagnostics, expression, endOfFileToken);
+		return new SyntaxTree(
+			this._input,
+			DiagnosticsBag.fromArray(this.diagnostics),
+			expression,
+			endOfFileToken
+		);
 	}
 }

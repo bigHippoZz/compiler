@@ -18,8 +18,8 @@ export class Compilation {
 
 		const boundExpression = binder.bindExpression(this.syntax.root);
 
-		const diagnostics = DiagnosticsBag.fromArray(
-			this.syntax.diagnostics.addRange(binder.diagnostics)
+		const diagnostics = this.syntax.diagnostics.concat(
+			DiagnosticsBag.fromArray(binder.diagnostics)
 		);
 
 		if (diagnostics.length) {

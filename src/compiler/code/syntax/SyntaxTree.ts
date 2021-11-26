@@ -41,17 +41,4 @@ export class SyntaxTree {
 			return this.parse(sourceText);
 		}
 	}
-
-	// public static *parseTokens(input: string): IterableIterator<SyntaxToken> {
-	// 	const lexer = new Lex(input);
-
-	// 	while (true) {
-	// 		const token = lexer.lex();
-
-	// 		if (token.kind === SyntaxKind.EndOfFileToken) {
-	// 			break;
-	// 		}
-	// 		yield token;
-	// 	}
-	// }
 }

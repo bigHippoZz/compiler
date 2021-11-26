@@ -50,7 +50,7 @@ export class DiagnosticsBag {
 		operatorText: string,
 		operandType: string
 	) {
-		const message = `Unary operator '${operatorText}' is not defined for type ${operandType}.`;
+		const message = `Unary operator '${operatorText}' is not defined for type '${operandType}'.`;
 		this.report(span, message);
 	}
 
@@ -60,7 +60,7 @@ export class DiagnosticsBag {
 		leftType: string,
 		rightType: string
 	) {
-		const message = `Binary operator '${operatorText}' is not defined for types ${leftType} and ${rightType}.`;
+		const message = `Binary operator '${operatorText}' is not defined for types '${leftType}' and '${rightType}'.`;
 		this.report(span, message);
 	}
 

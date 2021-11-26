@@ -35,12 +35,10 @@ export class Lex {
 
 	private peek(offset: number): string {
 		const index = this._position + offset;
-
 		if (index >= this.text.length) {
 			return "\0";
 		}
-
-		return this.text[index];
+		return this.text.at(index);
 	}
 
 	private next(): void {
@@ -59,7 +57,9 @@ export class Lex {
 			this.next();
 		}
 
-		const text = this.text.substring(this._start, this._position);
+		const length = this._position - this._start;
+
+		const text = this.text.toString(this._start, length);
 
 		this._value = Number(text);
 
@@ -81,7 +81,7 @@ export class Lex {
 
 		const length = this._position - this._start;
 
-		const text = this.text.substr(this._start, length);
+		const text = this.text.toString(this._start, length);
 
 		this._kind = SyntaxFacts.getKeywordKind(text);
 	}
@@ -192,7 +192,9 @@ export class Lex {
 
 		let text = SyntaxFacts.getText(this._kind);
 
-		if (text === null) text = this.text.substr(this._start, length);
+		if (text === null) {
+			text = this.text.toString(this._start, length);
+		}
 
 		return new SyntaxToken(this._kind, this._position, text, this._value);
 	}

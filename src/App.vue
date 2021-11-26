@@ -48,7 +48,9 @@ const result = ref<number>(0);
 
 const execution = function (event: KeyboardEvent) {
 	if (event.code.toLowerCase() !== "enter") return;
+
 	console.clear();
+
 	const ast = SyntaxTree.parse(unref(input));
 
 	tree.value = FormatTree.formatSyntaxTree(ast.root);

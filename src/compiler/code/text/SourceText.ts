@@ -1,17 +1,16 @@
 import { TextLine } from "./TextLine";
 import { TextSpan } from "./TextSpan";
 
-export class SourceText extends Array {
+export class SourceText {
 	public lines: Array<TextLine>;
 
-	private _text: string;
+	public _text: string;
 
 	public get length(): number {
 		return this._text.length;
 	}
 
 	public constructor(text: string) {
-		super();
 		this._text = text;
 		this.lines = SourceText.parseLines(this, text);
 	}
