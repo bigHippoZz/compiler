@@ -4,6 +4,7 @@ import { SyntaxToken } from "./SyntaxToken";
 import { SyntaxFacts } from "./SyntaxFacts";
 import { DiagnosticsBag } from "../DiagnosticsBag";
 import { TextSpan } from "../text/TextSpan";
+import { SourceText } from "../text/SourceText";
 
 export class Lex {
 	private _position: number = 0;
@@ -22,7 +23,7 @@ export class Lex {
 
 	public diagnostics: DiagnosticsBag = new DiagnosticsBag();
 
-	constructor(private readonly _text: string) {}
+	constructor(private readonly text: SourceText) {}
 
 	private get current(): string {
 		return this.peek(0);
@@ -35,11 +36,11 @@ export class Lex {
 	private peek(offset: number): string {
 		const index = this._position + offset;
 
-		if (index >= this._text.length) {
+		if (index >= this.text.length) {
 			return "\0";
 		}
 
-		return this._text[index];
+		return this.text[index];
 	}
 
 	private next(): void {
@@ -58,7 +59,7 @@ export class Lex {
 			this.next();
 		}
 
-		const text = this._text.substring(this._start, this._position);
+		const text = this.text.substring(this._start, this._position);
 
 		this._value = Number(text);
 
@@ -80,7 +81,7 @@ export class Lex {
 
 		const length = this._position - this._start;
 
-		const text = this._text.substr(this._start, length);
+		const text = this.text.substr(this._start, length);
 
 		this._kind = SyntaxFacts.getKeywordKind(text);
 	}
@@ -191,7 +192,7 @@ export class Lex {
 
 		let text = SyntaxFacts.getText(this._kind);
 
-		if (text === null) text = this._text.substr(this._start, length);
+		if (text === null) text = this.text.substr(this._start, length);
 
 		return new SyntaxToken(this._kind, this._position, text, this._value);
 	}

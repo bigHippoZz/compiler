@@ -3,6 +3,7 @@ import { Binder } from "./binding/Binder";
 import { Evaluator } from "./Evaluator";
 import { EvaluationResult } from "./EvaluationResult";
 import { VariableSymbol } from "./VariableSymbol";
+import { DiagnosticsBag } from "./DiagnosticsBag";
 
 export type GlobalVariableDeclaration = Map<VariableSymbol, any>;
 
@@ -17,9 +18,9 @@ export class Compilation {
 
 		const boundExpression = binder.bindExpression(this.syntax.root);
 
-		const error = this.syntax.diagnostics;
-
-		const diagnostics = error.addRange(binder.diagnostics).diagnostics;
+		const diagnostics = DiagnosticsBag.fromArray(
+			this.syntax.diagnostics.addRange(binder.diagnostics)
+		);
 
 		if (diagnostics.length) {
 			return new EvaluationResult(diagnostics, null);

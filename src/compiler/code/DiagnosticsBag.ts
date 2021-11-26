@@ -3,9 +3,9 @@ import { TextSpan } from "./text/TextSpan";
 import { SyntaxKind } from "./syntax/SyntaxKind";
 
 export class DiagnosticsBag {
-	private _diagnostics: Diagnostic[] = [];
+	private _diagnostics: Array<Diagnostic> = [];
 
-	public get diagnostics(): Diagnostic[] {
+	public get diagnostics(): Array<Diagnostic> {
 		return this._diagnostics;
 	}
 
@@ -65,7 +65,21 @@ export class DiagnosticsBag {
 	}
 
 	public reportUndefinedName(span: TextSpan, name: string) {
-		const message = `Undefined  name '${name}' is not defined for global`;
+		const message = `Variable '${name}' doesn't exist.`;
 		this.report(span, message);
+	}
+
+	[Symbol.iterator](): IterableIterator<Diagnostic> {
+		return this.values();
+	}
+
+	private *values() {
+		for (const diagnostic of this.diagnostics) {
+			yield diagnostic;
+		}
+	}
+
+	public static fromArray(bag: DiagnosticsBag): Array<Diagnostic> {
+		return bag.diagnostics;
 	}
 }

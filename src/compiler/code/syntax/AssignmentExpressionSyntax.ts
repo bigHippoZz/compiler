@@ -12,20 +12,20 @@ export class AssignmentExpressionSyntax extends ExpressionSyntax {
 		super();
 	}
 
-	public get kind(): SyntaxKind {
-		return SyntaxKind.AssignmentExpression;
-	}
-
-	public get expression(): ExpressionSyntax {
-		return this._expression;
+	public get identifierToken(): SyntaxToken {
+		return this._identifierToken;
 	}
 
 	public get equalsToken(): SyntaxToken {
 		return this._equalsToken;
 	}
 
-	public get identifierToken(): SyntaxToken {
-		return this._identifierToken;
+	public get expression(): ExpressionSyntax {
+		return this._expression;
+	}
+
+	public get kind(): SyntaxKind {
+		return SyntaxKind.AssignmentExpression;
 	}
 
 	public getChildren(): SyntaxNode[] {

@@ -3499,6 +3499,16 @@ xmlchars@^2.2.0:
   resolved "https://registry.npm.taobao.org/xmlchars/download/xmlchars-2.2.0.tgz#060fe1bcb7f9c76fe2a17db86a9bc3ab894210cb"
   integrity sha1-Bg/hvLf5x2/ioX24apvDq4lCEMs=
 
+xterm-addon-fit@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.npmmirror.com/xterm-addon-fit/download/xterm-addon-fit-0.5.0.tgz#2d51b983b786a97dcd6cde805e700c7f913bc596"
+  integrity sha1-LVG5g7eGqX3NbN6AXnAMf5E7xZY=
+
+xterm-theme@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.nlark.com/xterm-theme/download/xterm-theme-1.1.0.tgz#2e499c4dd6d2cf592c90389022095e1ce509bbbe"
+  integrity sha1-LkmcTdbSz1kskDiQIgleHOUJu74=
+
 xterm@^4.15.0:
   version "4.15.0"
   resolved "https://registry.npmmirror.com/xterm/download/xterm-4.15.0.tgz#e52038507eba7e0d36d47f81e29fe548c82b9561"

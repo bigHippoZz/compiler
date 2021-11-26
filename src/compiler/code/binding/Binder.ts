@@ -153,14 +153,14 @@ export class Binder {
 		const boundOperand = this.bindExpression(syntax.operand);
 
 		const boundOperator = BoundUnaryOperator.bind(
-			syntax.operationToken.kind,
+			syntax.operatorToken.kind,
 			boundOperand.type
 		);
 
 		if (boundOperator === null) {
 			this._diagnostics.reportUndefinedUnaryOperator(
-				syntax.operationToken.span,
-				syntax.operationToken.text!,
+				syntax.operatorToken.span,
+				syntax.operatorToken.text!,
 				boundOperand.type
 			);
 			return boundOperand;

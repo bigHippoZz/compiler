@@ -6,6 +6,7 @@
 				placeholder="Please enter something"
 				allow-clear
 				auto-size
+				@keyup="execution"
 			/>
 		</a-col>
 		<a-col :span="6">
@@ -32,51 +33,34 @@ import { SyntaxTree } from "./compiler/code/syntax/SyntaxTree";
 
 import { FormatTree } from "./compiler/utils/fmt";
 
-import { onMounted, ref, unref, watch } from "vue";
+import { ref, unref } from "vue";
 
 import { Compilation } from "./compiler/code/Compilation";
 
 import { Diagnostic } from "./compiler/code/Diagnostic";
 
-import * as htmlparser2 from "htmlparser2";
-
-function useProcessor() {
-	const input = ref<string>("");
-	const tree = ref<string[]>([]);
-	const alert = ref<Diagnostic[]>([]);
-	const result = ref<number>(0);
-
-	watch(
-		() => unref(input),
-
-		(value) => {
-			const ast = SyntaxTree.parse(unref(value));
-
-			tree.value = FormatTree.formatSyntaxTree(ast.root);
-
-			console.clear();
-
-			console.log(ast.root);
-
-			const evaluate = new Compilation(ast).evaluate();
-
-			result.value = evaluate.value;
-
-			alert.value = evaluate.diagnostics;
-		}
-	);
-
-	return {
-		input,
-		tree,
-		alert,
-		result,
-	};
-}
-
 const show = ref<boolean>(true);
 
-const { input, tree, alert, result } = useProcessor();
+const input = ref<string>("");
+const tree = ref<string[]>([]);
+const alert = ref<Diagnostic[]>([]);
+const result = ref<number>(0);
+
+const execution = function (event: KeyboardEvent) {
+	if (event.code.toLowerCase() !== "enter") return;
+	console.clear();
+	const ast = SyntaxTree.parse(unref(input));
+
+	tree.value = FormatTree.formatSyntaxTree(ast.root);
+
+	console.log(ast.root);
+
+	const evaluate = new Compilation(ast).evaluate();
+
+	result.value = evaluate.value;
+
+	alert.value = evaluate.diagnostics;
+};
 </script>
 
 <style>

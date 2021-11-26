@@ -3,20 +3,29 @@ import { SyntaxKind } from "./SyntaxKind";
 import { TextSpan } from "../text/TextSpan";
 
 export class SyntaxToken extends SyntaxNode {
-	private _span: TextSpan;
-
 	constructor(
-		public kind: SyntaxKind,
-		public position: number,
-		public text: string | null,
+		private _kind: SyntaxKind,
+		private _position: number,
+		private _text: string | null,
 		public value: any
 	) {
 		super();
-		this._span = new TextSpan(this.position, this.text?.length ?? 1);
+	}
+
+	public get text(): string | null {
+		return this._text;
+	}
+
+	public get position(): number {
+		return this._position;
+	}
+
+	public get kind(): SyntaxKind {
+		return this._kind;
 	}
 
 	public get span() {
-		return this._span;
+		return new TextSpan(this.position, this.text?.length ?? 1);
 	}
 
 	public getChildren(): SyntaxNode[] {

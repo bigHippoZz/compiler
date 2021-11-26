@@ -10,9 +10,10 @@ export class FormatTree {
 			whitespace = "<span>&nbsp;</span>"
 		) {
 			const marker = isLast ? "└──" : "├──";
+
 			result.push(
 				`<span style=color:${
-					tree.name.includes("Token") ? "#B85252" : " "
+					tree.kind.includes("Token") ? "#B85252" : " "
 				}>${whitespace}${marker} &lt;${
 					tree.kind
 					// @ts-ignore
@@ -21,7 +22,14 @@ export class FormatTree {
 			whitespace += isLast
 				? "<span>&nbsp;</span>".repeat(4)
 				: "|" + "<span>&nbsp;</span>".repeat(3);
-			indent += isLast ? "      " : "|     ";
+
+			console.log(
+				// @ts-ignore
+				`${indent}${marker} ${tree.kind} < ${tree?.text ?? "null"} >`
+			);
+
+			indent += isLast ? "     " : "|     ";
+
 			const lastChildren =
 				tree.getChildren()[tree.getChildren().length - 1];
 

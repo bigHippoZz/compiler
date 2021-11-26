@@ -16,4 +16,9 @@ export class TextSpan {
 	public get end(): number {
 		return this._end;
 	}
+
+	public static fromBounds(start: number, end: number) {
+		const length = end - start;
+		return new TextSpan(start, length);
+	}
 }

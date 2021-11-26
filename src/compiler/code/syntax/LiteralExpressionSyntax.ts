@@ -12,7 +12,7 @@ export class LiteralExpressionSyntax extends ExpressionSyntax {
 	}
 
 	public get value(): any {
-		return this._value ?? 0;
+		return this._value;
 	}
 
 	public get kind(): SyntaxKind {

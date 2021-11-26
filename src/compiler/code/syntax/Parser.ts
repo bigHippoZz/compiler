@@ -11,6 +11,7 @@ import { DiagnosticsBag } from "../DiagnosticsBag";
 import { AssignmentExpressionSyntax } from "./AssignmentExpressionSyntax";
 import { NamedExpressionSyntax } from "./NamedExpressionSyntax";
 import { Lex } from "./Lexer";
+import { SourceText } from "../text/SourceText";
 
 export class Parser {
 	private _syntaxTokens: SyntaxToken[] = [];
@@ -19,7 +20,7 @@ export class Parser {
 
 	private _position: number = 0;
 
-	constructor(private _input: string) {
+	constructor(private _input: SourceText) {
 		let lexer: Lex = new Lex(this._input);
 		let token: SyntaxToken;
 		do {
