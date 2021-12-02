@@ -3,30 +3,42 @@ import { Binder } from "./binding/Binder";
 import { Evaluator } from "./Evaluator";
 import { EvaluationResult } from "./EvaluationResult";
 import { VariableSymbol } from "./VariableSymbol";
-import { DiagnosticsBag } from "./DiagnosticsBag";
+import { BoundGlobalScope } from "./binding/BoundGlobalScope";
 
 export type GlobalVariableDeclaration = Map<VariableSymbol, any>;
 
-const defaultGlobalVariableDeclaration: GlobalVariableDeclaration = new Map();
 export class Compilation {
-	constructor(public syntax: SyntaxTree) {}
+	private _globalScope: BoundGlobalScope | null = null;
 
-	public evaluate(
-		variables: GlobalVariableDeclaration = defaultGlobalVariableDeclaration
-	): EvaluationResult {
-		const binder = new Binder(variables);
+	constructor(
+		public syntax: SyntaxTree,
+		public previous: Compilation | null = null
+	) {}
 
-		const boundExpression = binder.bindExpression(this.syntax.root);
+	public get globalScope(): BoundGlobalScope {
+		if (this._globalScope === null) {
+			this._globalScope = Binder.bindGlobalScope(
+				this.syntax.root,
+				this.previous?._globalScope ?? null
+			);
+		}
+		return this._globalScope;
+	}
 
+	public continueWith(syntax: SyntaxTree) {
+		return new Compilation(syntax, this);
+	}
+
+	public evaluate(variables: GlobalVariableDeclaration): EvaluationResult {
 		const diagnostics = this.syntax.diagnostics.concat(
-			DiagnosticsBag.fromArray(binder.diagnostics)
+			this.globalScope.diagnostics
 		);
 
 		if (diagnostics.length) {
 			return new EvaluationResult(diagnostics, null);
 		}
 
-		const evaluator = new Evaluator(boundExpression, variables);
+		const evaluator = new Evaluator(this.globalScope.expression, variables);
 
 		const value = evaluator.evaluate();
 

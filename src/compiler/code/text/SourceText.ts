@@ -64,7 +64,7 @@ export class SourceText {
 			}
 		}
 
-		if (position > lineStart)
+		if (position >= lineStart)
 			this.addLine(result, sourceText, position, lineStart, 0);
 
 		return result;

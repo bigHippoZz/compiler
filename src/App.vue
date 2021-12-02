@@ -46,18 +46,33 @@ const tree = ref<string[]>([]);
 const alert = ref<Diagnostic[]>([]);
 const result = ref<number>(0);
 
+const globalVariables = new Map();
+
+let previous: Compilation | null = null;
+
 const execution = function (event: KeyboardEvent) {
 	if (event.code.toLowerCase() !== "enter") return;
-
 	console.clear();
-
+	////////////////////  前端  ////////////////
 	const ast = SyntaxTree.parse(unref(input));
-
 	tree.value = FormatTree.formatSyntaxTree(ast.root);
+	////////////////////////////////////////////
 
-	console.log(ast.root);
+	console.log("[AbstractSyntaxTree] =>", ast.root);
 
-	const evaluate = new Compilation(ast).evaluate();
+	////////////////////  后端  ////////////////
+	const compilation = !previous
+		? new Compilation(ast)
+		: previous.continueWith(ast);
+
+	const evaluate = compilation.evaluate(globalVariables);
+	////////////////////////////////////////////
+
+	previous = compilation;
+
+	console.log("[GlobalVariables] =>", globalVariables);
+
+	console.log("[Compilation] =>", previous);
 
 	result.value = evaluate.value;
 

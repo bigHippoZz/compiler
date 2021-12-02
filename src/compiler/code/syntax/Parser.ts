@@ -12,11 +12,12 @@ import { AssignmentExpressionSyntax } from "./AssignmentExpressionSyntax";
 import { NamedExpressionSyntax } from "./NamedExpressionSyntax";
 import { Lex } from "./Lexer";
 import { SourceText } from "../text/SourceText";
+import { CompilationUnitSyntax } from "./CompilationUnitSyntax";
 
 export class Parser {
 	private _syntaxTokens: SyntaxToken[] = [];
 
-	private diagnostics: DiagnosticsBag = new DiagnosticsBag();
+	public diagnostics: DiagnosticsBag = new DiagnosticsBag();
 
 	private _position: number = 0;
 
@@ -173,14 +174,11 @@ export class Parser {
 		return new NamedExpressionSyntax(identifierToken);
 	}
 
-	public parse() {
+	public parseCompilationUnit() {
 		const expression = this.parseExpression();
+
 		const endOfFileToken = this.matchToken(SyntaxKind.EndOfFileToken);
-		return new SyntaxTree(
-			this._input,
-			DiagnosticsBag.fromArray(this.diagnostics),
-			expression,
-			endOfFileToken
-		);
+
+		return new CompilationUnitSyntax(expression, endOfFileToken);
 	}
 }

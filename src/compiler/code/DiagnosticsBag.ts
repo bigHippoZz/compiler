@@ -69,6 +69,11 @@ export class DiagnosticsBag {
 		this.report(span, message);
 	}
 
+	public reportVariableAlreadyDeclared(span: TextSpan, name: string) {
+		const message = `Variable '${name}' is already declared.`;
+		this.report(span, message);
+	}
+
 	[Symbol.iterator](): IterableIterator<Diagnostic> {
 		return this.values();
 	}

@@ -13,22 +13,71 @@ import { DiagnosticsBag } from "../DiagnosticsBag";
 import { ParenthesizedExpressionSyntax } from "../syntax/ParenthesizedExpressionSyntax";
 import { NamedExpressionSyntax } from "../syntax/NamedExpressionSyntax";
 import { AssignmentExpressionSyntax } from "../syntax/AssignmentExpressionSyntax";
-import { GlobalVariableDeclaration } from "../Compilation";
 import { BoundVariableExpression } from "./BoundVariableExpression";
 import { BoundAssignmentExpression } from "./BoundAssignmentExpression";
 import { VariableSymbol } from "../VariableSymbol";
+import { BoundScope } from "./BoundScope";
+import { BoundGlobalScope } from "./BoundGlobalScope";
+import { CompilationUnitSyntax } from "../syntax/CompilationUnitSyntax";
 
 export class Binder {
-	public get variables(): GlobalVariableDeclaration {
-		return this._variables;
-	}
-
-	constructor(private readonly _variables: GlobalVariableDeclaration) {}
-
 	private readonly _diagnostics: DiagnosticsBag = new DiagnosticsBag();
+
+	private _scope: BoundScope;
+
+	constructor(private parent: BoundScope | null) {
+		this._scope = new BoundScope(this.parent);
+	}
 
 	public get diagnostics(): DiagnosticsBag {
 		return this._diagnostics;
+	}
+
+	// ast  => compilationUnit => bind
+	public static bindGlobalScope(
+		syntax: CompilationUnitSyntax,
+		previous: BoundGlobalScope | null
+	): BoundGlobalScope {
+		const parentScope = this.createParentScope(previous);
+
+		console.log("[ParentScope]", parentScope);
+
+		const binder = new Binder(parentScope);
+
+		const expression = binder.bindExpression(syntax.expression);
+		// TODO
+		const variables = binder._scope.getDeclareVariables();
+
+		const diagnostics = DiagnosticsBag.fromArray(binder._diagnostics);
+
+		return new BoundGlobalScope(
+			previous,
+			diagnostics,
+			variables,
+			expression
+		);
+	}
+	public static createParentScope(
+		previous: BoundGlobalScope | null
+	): BoundScope | null {
+		const stack: Array<BoundGlobalScope> = [];
+
+		while (previous !== null) {
+			stack.push(previous);
+			previous = previous.previous;
+		}
+
+		let parent: BoundScope | null = null;
+
+		while (stack.length) {
+			previous = stack.pop()!;
+			const scope: BoundScope = new BoundScope(parent);
+			for (const v of previous.variables) {
+				scope.tryDeclare(v);
+			}
+			parent = scope;
+		}
+		return parent;
 	}
 
 	public bindExpression(syntax: ExpressionSyntax): BoundExpression {
@@ -96,18 +145,13 @@ export class Binder {
 	private bindNameExpression(syntax: NamedExpressionSyntax): BoundExpression {
 		const name = syntax.identifierToken.text as string;
 
-		let variable: VariableSymbol | null = null;
-
-		for (const key of this.variables.keys()) {
-			name === key.name && (variable = key);
-		}
+		const variable = this._scope.tryLookup(name);
 
 		if (variable === null) {
 			this.diagnostics.reportUndefinedName(
 				syntax.identifierToken.span,
 				name
 			);
-			// TODO null  " "
 			return new BoundLiteralExpression(undefined);
 		}
 
@@ -125,19 +169,14 @@ export class Binder {
 
 		const boundExpression = this.bindExpression(syntax.expression);
 
-		let existingVariable: VariableSymbol | null = null;
-
-		for (const key of this.variables.keys()) {
-			name === key.name && (existingVariable = key);
-		}
-
-		if (existingVariable !== null) {
-			this.variables.delete(existingVariable);
-		}
-
 		const variable = new VariableSymbol(name, boundExpression.type);
 
-		this.variables.set(variable, null);
+		if (!this._scope.tryDeclare(variable)) {
+			this.diagnostics.reportVariableAlreadyDeclared(
+				syntax.identifierToken.span,
+				name
+			);
+		}
 
 		return new BoundAssignmentExpression(variable, boundExpression);
 	}

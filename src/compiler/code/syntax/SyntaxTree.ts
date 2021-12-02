@@ -1,12 +1,18 @@
-import { ExpressionSyntax } from "./ExpressionSyntax";
 import { Parser } from "./Parser";
-import { SyntaxToken } from "./SyntaxToken";
-import { Lex } from "./Lexer";
-import { SyntaxKind } from "./SyntaxKind";
 import { Diagnostic } from "../Diagnostic";
 import { SourceText } from "../text/SourceText";
+import { CompilationUnitSyntax } from "./CompilationUnitSyntax";
+import { DiagnosticsBag } from "../DiagnosticsBag";
 
 export class SyntaxTree {
+	private _root: CompilationUnitSyntax;
+
+	private _diagnostics: Diagnostic[];
+
+	public get root(): CompilationUnitSyntax {
+		return this._root;
+	}
+
 	public get text(): SourceText {
 		return this._text;
 	}
@@ -15,27 +21,21 @@ export class SyntaxTree {
 		return this._diagnostics;
 	}
 
-	public get root(): ExpressionSyntax {
-		return this._root;
-	}
+	constructor(private _text: SourceText) {
+		const parser = new Parser(this._text);
+		const root = parser.parseCompilationUnit();
+		const diagnostics = parser.diagnostics;
 
-	public get endOfFileToken(): SyntaxToken {
-		return this._endOfFileToken;
-	}
+		this._root = root;
 
-	constructor(
-		private _text: SourceText,
-		private _diagnostics: Array<Diagnostic>,
-		private _root: ExpressionSyntax,
-		private _endOfFileToken: SyntaxToken
-	) {}
+		this._diagnostics = DiagnosticsBag.fromArray(diagnostics);
+	}
 
 	static parse(input: string): SyntaxTree;
 	static parse(input: SourceText): SyntaxTree;
 	static parse(input: string | SourceText): SyntaxTree {
 		if (input instanceof SourceText) {
-			const parser = new Parser(input);
-			return parser.parse();
+			return new SyntaxTree(input);
 		} else {
 			const sourceText = SourceText.from(input);
 			return this.parse(sourceText);
