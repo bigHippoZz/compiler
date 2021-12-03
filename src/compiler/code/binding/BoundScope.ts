@@ -3,7 +3,7 @@ import { VariableSymbol } from "../VariableSymbol";
 export class BoundScope {
 	private _variables: Record<string, VariableSymbol> = Object.create(null);
 
-	constructor(private parent: BoundScope | null) {}
+	constructor(public parent: BoundScope | null) {}
 
 	public tryDeclare(variable: VariableSymbol): boolean {
 		if (variable.name in this._variables) {

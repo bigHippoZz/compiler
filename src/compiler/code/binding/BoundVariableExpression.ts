@@ -3,12 +3,8 @@ import { BoundNodeKind } from "./BoundNodeKind";
 import { VariableSymbol } from "../VariableSymbol";
 
 export class BoundVariableExpression extends BoundExpression {
-	constructor(private _variable: VariableSymbol) {
+	constructor(public variable: VariableSymbol) {
 		super();
-	}
-
-	public get variable(): VariableSymbol {
-		return this._variable;
 	}
 
 	public get type(): string {

@@ -6,13 +6,9 @@ import { SyntaxToken } from "./SyntaxToken";
 export class LiteralExpressionSyntax extends ExpressionSyntax {
 	constructor(
 		public LiteralToken: SyntaxToken,
-		private _value: any = LiteralToken.value
+		public value: any = LiteralToken.value
 	) {
 		super();
-	}
-
-	public get value(): any {
-		return this._value;
 	}
 
 	public get kind(): SyntaxKind {

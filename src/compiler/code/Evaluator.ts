@@ -8,10 +8,18 @@ import { GlobalVariableDeclaration } from "./Compilation";
 import { BoundVariableExpression } from "./binding/BoundVariableExpression";
 import { BoundAssignmentExpression } from "./binding/BoundAssignmentExpression";
 import { BoundNodeKind } from "./binding/BoundNodeKind";
+import {
+	BoundStatement,
+	BoundVariableDeclaration,
+} from "./binding/BoundStatement";
+import { BoundBlockStatement } from "./binding/BoundBlockStatement";
+import { BoundExpressionStatement } from "./binding/BoundExpressionStatement";
 
 export class Evaluator {
+	private _lastValue: any;
+
 	constructor(
-		private _root: BoundExpression,
+		private _root: BoundStatement,
 		private _variables: GlobalVariableDeclaration
 	) {}
 
@@ -20,7 +28,47 @@ export class Evaluator {
 	}
 
 	public evaluate() {
-		return this._evaluateExpression(this._root);
+		this._evaluateStatement(this._root);
+
+		return this._lastValue;
+	}
+
+	private _evaluateStatement(node: BoundStatement): void {
+		switch (node.kind) {
+			case BoundNodeKind.BlockStatement:
+				this.evaluateBlockStatement(node as BoundBlockStatement);
+				break;
+
+			case BoundNodeKind.VariableDeclaration:
+				this.evaluateVariableDeclaration(
+					node as BoundVariableDeclaration
+				);
+				break;
+
+			case BoundNodeKind.ExpressionStatement:
+				this.evaluateExpressionStatement(
+					node as BoundExpressionStatement
+				);
+				break;
+			default:
+				throw new Error(`Unexpected node ${node.kind}`);
+		}
+	}
+
+	public evaluateVariableDeclaration(node: BoundVariableDeclaration) {
+		const value = this._evaluateExpression(node.initializer);
+		this._variables.set(node.variable, value);
+		this._lastValue = value;
+	}
+
+	private evaluateBlockStatement(node: BoundBlockStatement): void {
+		for (const statement of node.statements) {
+			this._evaluateStatement(statement);
+		}
+	}
+
+	private evaluateExpressionStatement(node: BoundExpressionStatement): void {
+		this._lastValue = this._evaluateExpression(node.expression);
 	}
 
 	private _evaluateExpression(node: BoundExpression): any {

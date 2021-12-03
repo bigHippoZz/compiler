@@ -5,23 +5,11 @@ import { SyntaxToken } from "./SyntaxToken";
 
 export class ParenthesizedExpressionSyntax extends ExpressionSyntax {
 	constructor(
-		private _openParenthesisToken: SyntaxToken,
-		private _expression: ExpressionSyntax,
-		private _closeParenthesisToken: SyntaxToken
+		public openParenthesisToken: SyntaxToken,
+		public expression: ExpressionSyntax,
+		public closeParenthesisToken: SyntaxToken
 	) {
 		super();
-	}
-
-	public get closeParenthesisToken(): SyntaxToken {
-		return this._closeParenthesisToken;
-	}
-
-	public get expression(): ExpressionSyntax {
-		return this._expression;
-	}
-
-	public get openParenthesisToken(): SyntaxToken {
-		return this._openParenthesisToken;
 	}
 
 	public get kind(): SyntaxKind {

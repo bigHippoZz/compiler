@@ -4,11 +4,7 @@ import { SyntaxKind } from "./SyntaxKind";
 import { SyntaxToken } from "./SyntaxToken";
 
 export class NamedExpressionSyntax extends ExpressionSyntax {
-	public get identifierToken(): SyntaxToken {
-		return this._identifierToken;
-	}
-
-	constructor(private _identifierToken: SyntaxToken) {
+	constructor(public identifierToken: SyntaxToken) {
 		super();
 	}
 

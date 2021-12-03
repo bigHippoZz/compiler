@@ -74,6 +74,20 @@ export class DiagnosticsBag {
 		this.report(span, message);
 	}
 
+	public reportCannotConvert(
+		span: TextSpan,
+		actualType: string,
+		expectedType: string
+	) {
+		const message = `Cannot convert type '${actualType}' to '${expectedType}'.`;
+		this.report(span, message);
+	}
+
+	public reportCannotAssign(span: TextSpan, name: string) {
+		const message = `Variable '${name}' is read-only and cannot be assigned to.`;
+		this.report(span, message);
+	}
+
 	[Symbol.iterator](): IterableIterator<Diagnostic> {
 		return this.values();
 	}

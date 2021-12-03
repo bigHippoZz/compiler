@@ -126,6 +126,15 @@ export class Lex {
 				this.next();
 				break;
 
+			case "{":
+				this._kind = SyntaxKind.OpenBraceToken;
+				this.next();
+				break;
+			case "}":
+				this._kind = SyntaxKind.CloseBraceToken;
+				this.next();
+				break;
+
 			case "&":
 				if (this.lookahead == "&") {
 					this._kind = SyntaxKind.AmpersandAmpersandToken;

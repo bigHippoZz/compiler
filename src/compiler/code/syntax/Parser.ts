@@ -5,7 +5,6 @@ import { ParenthesizedExpressionSyntax } from "./ParenthesizedExpressionSyntax";
 import { SyntaxFacts } from "./SyntaxFacts";
 import { SyntaxKind } from "./SyntaxKind";
 import { SyntaxToken } from "./SyntaxToken";
-import { SyntaxTree } from "./SyntaxTree";
 import { UnaryExpressionSyntax } from "./UnaryExpressionSyntax";
 import { DiagnosticsBag } from "../DiagnosticsBag";
 import { AssignmentExpressionSyntax } from "./AssignmentExpressionSyntax";
@@ -13,6 +12,10 @@ import { NamedExpressionSyntax } from "./NamedExpressionSyntax";
 import { Lex } from "./Lexer";
 import { SourceText } from "../text/SourceText";
 import { CompilationUnitSyntax } from "./CompilationUnitSyntax";
+import { StatementSyntax } from "./StatementSyntax";
+import { ExpressionStatementSyntax } from "./ExpressionStatementSyntax";
+import { BlockStatementSyntax } from "./BlockStatementSyntax";
+import { VariableDeclarationSyntax } from "./VariableDeclarationSyntax";
 
 export class Parser {
 	private _syntaxTokens: SyntaxToken[] = [];
@@ -75,7 +78,70 @@ export class Parser {
 		return new SyntaxToken(kind, this.current.position, null, null);
 	}
 
-	private parseBinaryExpression(parentPrecedence: number = 0) {
+	/**
+	 * 解析二进制的声明语句
+	 * @returns
+	 */
+	private parseExpressionStatement(): ExpressionStatementSyntax {
+		const expression = this.parseExpression();
+		return new ExpressionStatementSyntax(expression);
+	}
+
+	private parseBlockStatement() {
+		const statements: Array<StatementSyntax> = [];
+
+		const openBraceToken = this.matchToken(SyntaxKind.OpenBraceToken);
+		/**
+		 * 判断当前的字符是不是结束符 或者是closeBraceToken
+		 * 进行递归结束
+		 */
+		while (
+			this.current.kind !== SyntaxKind.CloseBraceToken &&
+			this.current.kind !== SyntaxKind.EndOfFileToken
+		) {
+			const statement = this.parseStatement();
+			statements.push(statement);
+		}
+		const closeBraceToken = this.matchToken(SyntaxKind.CloseBraceToken);
+		return new BlockStatementSyntax(
+			openBraceToken,
+			statements,
+			closeBraceToken
+		);
+	}
+
+	private parseStatement(): StatementSyntax {
+		switch (this.current.kind) {
+			case SyntaxKind.OpenBraceToken:
+				return this.parseBlockStatement();
+			case SyntaxKind.VarKeyword:
+			case SyntaxKind.LetKeyword:
+				return this.parseVariableDeclaration();
+			default:
+				return this.parseExpressionStatement();
+		}
+	}
+
+	private parseVariableDeclaration(): VariableDeclarationSyntax {
+		const expected =
+			this.current.kind === SyntaxKind.LetKeyword
+				? SyntaxKind.LetKeyword
+				: SyntaxKind.VarKeyword;
+		const keyword = this.matchToken(expected);
+		const identifier = this.matchToken(SyntaxKind.IdentifierToken);
+		const equalsToken = this.matchToken(SyntaxKind.EqualsToken);
+		const initializer = this.parseExpression();
+		return new VariableDeclarationSyntax(
+			keyword,
+			identifier,
+			equalsToken,
+			initializer
+		);
+	}
+
+	private parseBinaryExpression(
+		parentPrecedence: number = 0
+	): ExpressionSyntax {
 		let left: ExpressionSyntax;
 		const unaryOperatorPrecedence = SyntaxFacts.getUnaryOperatorPrecedence(
 			this.current.kind
@@ -110,11 +176,13 @@ export class Parser {
 		return left;
 	}
 
-	private parseExpression() {
+	private parseExpression(): ExpressionSyntax {
 		return this.parseAssignmentExpression();
 	}
 
-	private parseAssignmentExpression(): ExpressionSyntax {
+	private parseAssignmentExpression():
+		| AssignmentExpressionSyntax
+		| ExpressionSyntax {
 		if (
 			this.peek(0).kind === SyntaxKind.IdentifierToken &&
 			this.peek(1).kind === SyntaxKind.EqualsToken
@@ -149,14 +217,14 @@ export class Parser {
 		}
 	}
 
-	private parseParenthesizedExpression() {
+	private parseParenthesizedExpression(): ParenthesizedExpressionSyntax {
 		const left = this.matchToken(SyntaxKind.OpenParenthesesToken);
 		const expression = this.parseExpression();
 		const right = this.matchToken(SyntaxKind.CloseParenthesesToken);
 		return new ParenthesizedExpressionSyntax(left, expression, right);
 	}
 
-	private parseBooleanLiteral() {
+	private parseBooleanLiteral(): LiteralExpressionSyntax {
 		const isTrue = this.current.kind === SyntaxKind.TrueKeyword;
 		const keywordsToken = isTrue
 			? this.matchToken(SyntaxKind.TrueKeyword)
@@ -164,21 +232,22 @@ export class Parser {
 		return new LiteralExpressionSyntax(keywordsToken, isTrue);
 	}
 
-	private parseNumberExpression() {
+	private parseNumberExpression(): LiteralExpressionSyntax {
 		const numberToken = this.matchToken(SyntaxKind.NumberToken);
 		return new LiteralExpressionSyntax(numberToken);
 	}
 
-	private parseNameExpression() {
+	private parseNameExpression(): NamedExpressionSyntax {
 		const identifierToken = this.matchToken(SyntaxKind.IdentifierToken);
 		return new NamedExpressionSyntax(identifierToken);
 	}
 
-	public parseCompilationUnit() {
-		const expression = this.parseExpression();
+	public parseCompilationUnit(): CompilationUnitSyntax {
+		// const expression = this.parseExpression();
+		const statement = this.parseStatement();
 
 		const endOfFileToken = this.matchToken(SyntaxKind.EndOfFileToken);
 
-		return new CompilationUnitSyntax(expression, endOfFileToken);
+		return new CompilationUnitSyntax(statement, endOfFileToken);
 	}
 }

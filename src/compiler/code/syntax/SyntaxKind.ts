@@ -68,6 +68,15 @@ export enum SyntaxKind {
 	CloseParenthesesToken = "CloseParenthesesToken",
 
 	/**
+	 *  { 大括号
+	 */
+	OpenBraceToken = "OpenBraceToken",
+	/**
+	 *  } 大括号
+	 */
+	CloseBraceToken = "CloseBraceToken",
+
+	/**
 	 *  =
 	 */
 	EqualsToken = "EqualsToken",
@@ -100,11 +109,18 @@ export enum SyntaxKind {
 	///  keywords
 	////////////////////////////////////////////////////////////////
 	TrueKeyword = "TrueKeyword",
-
 	FalseKeyword = "FalseKeyword",
-
+	VarKeyword = "VarKeyword",
+	LetKeyword = "LetKeyword",
 	////////////////////////////////////////////////////////////////
 	///  Nodes
 	////////////////////////////////////////////////////////////////
 	CompilationUnit = "CompilationUnit",
+
+	////////////////////////////////////////////////////////////////
+	///  statement
+	////////////////////////////////////////////////////////////////
+	BlockStatement = "BlockStatement",
+	ExpressionStatement = "ExpressionStatementSyntax",
+	VariableDeclaration = "VariableDeclaration",
 }

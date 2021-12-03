@@ -38,7 +38,7 @@ export class Compilation {
 			return new EvaluationResult(diagnostics, null);
 		}
 
-		const evaluator = new Evaluator(this.globalScope.expression, variables);
+		const evaluator = new Evaluator(this.globalScope.statement, variables);
 
 		const value = evaluator.evaluate();
 

@@ -19,6 +19,12 @@ import { VariableSymbol } from "../VariableSymbol";
 import { BoundScope } from "./BoundScope";
 import { BoundGlobalScope } from "./BoundGlobalScope";
 import { CompilationUnitSyntax } from "../syntax/CompilationUnitSyntax";
+import { BlockStatementSyntax } from "../syntax/BlockStatementSyntax";
+import { ExpressionStatementSyntax } from "../syntax/ExpressionStatementSyntax";
+import { BoundStatement, BoundVariableDeclaration } from "./BoundStatement";
+import { BoundBlockStatement } from "./BoundBlockStatement";
+import { BoundExpressionStatement } from "./BoundExpressionStatement";
+import { VariableDeclarationSyntax } from "../syntax/VariableDeclarationSyntax";
 
 export class Binder {
 	private readonly _diagnostics: DiagnosticsBag = new DiagnosticsBag();
@@ -44,12 +50,15 @@ export class Binder {
 
 		const binder = new Binder(parentScope);
 
-		const expression = binder.bindExpression(syntax.expression);
-		// TODO
+		const expression = binder.bindStatement(syntax.statement);
+
 		const variables = binder._scope.getDeclareVariables();
 
-		const diagnostics = DiagnosticsBag.fromArray(binder._diagnostics);
-
+		let diagnostics = DiagnosticsBag.fromArray(binder._diagnostics);
+		// 连接 diagnostics
+		if (previous !== null) {
+			diagnostics = diagnostics.concat(previous.diagnostics);
+		}
 		return new BoundGlobalScope(
 			previous,
 			diagnostics,
@@ -57,6 +66,7 @@ export class Binder {
 			expression
 		);
 	}
+
 	public static createParentScope(
 		previous: BoundGlobalScope | null
 	): BoundScope | null {
@@ -79,6 +89,82 @@ export class Binder {
 		}
 		return parent;
 	}
+
+	////////////////////////////////////////////////////////////////
+	// STATEMENT 语句
+	////////////////////////////////////////////////////////////////
+
+	public bindStatement(syntax: ExpressionSyntax): BoundStatement {
+		switch (syntax.kind) {
+			case SyntaxKind.BlockStatement:
+				return this.bindBlockStatement(syntax as BlockStatementSyntax);
+			case SyntaxKind.VariableDeclaration:
+				return this.bindVariableDeclaration(
+					syntax as VariableDeclarationSyntax
+				);
+			case SyntaxKind.ExpressionStatement:
+				return this.bindExpressionStatement(
+					syntax as ExpressionStatementSyntax
+				);
+			default:
+				throw new Error(`Unexpected syntax ${syntax.kind}`);
+		}
+	}
+
+	/**
+	 * 块状语句
+	 * @param syntax
+	 * @returns
+	 */
+	private bindBlockStatement(
+		syntax: BlockStatementSyntax
+	): BoundBlockStatement {
+		const statements: Array<BoundStatement> = [];
+
+		this._scope = new BoundScope(this._scope);
+
+		for (const statementSyntax of syntax.statements) {
+			const statement = this.bindStatement(statementSyntax);
+			statements.push(statement);
+		}
+
+		this._scope = this._scope.parent!;
+
+		return new BoundBlockStatement(statements);
+	}
+
+	private bindVariableDeclaration(
+		syntax: VariableDeclarationSyntax
+	): BoundStatement {
+		const name = syntax.identifier.text!;
+		const isReadonly = syntax.keyword.kind === SyntaxKind.LetKeyword;
+		const initializer = this.bindExpression(syntax.initializer);
+		const variable = new VariableSymbol(name, isReadonly, initializer.type);
+		if (!this._scope.tryDeclare(variable)) {
+			this.diagnostics.reportVariableAlreadyDeclared(
+				syntax.identifier.span,
+				name
+			);
+		}
+		return new BoundVariableDeclaration(variable, initializer);
+	}
+
+	/**
+	 * 表达式语句
+	 * @param syntax
+	 * @returns
+	 */
+	private bindExpressionStatement(
+		syntax: ExpressionStatementSyntax
+	): BoundExpressionStatement {
+		const expression = this.bindExpression(syntax.expression);
+
+		return new BoundExpressionStatement(expression);
+	}
+
+	////////////////////////////////////////////////////////////////
+	// EXPRESSION 表达式
+	////////////////////////////////////////////////////////////////
 
 	public bindExpression(syntax: ExpressionSyntax): BoundExpression {
 		switch (syntax.kind) {
@@ -169,13 +255,27 @@ export class Binder {
 
 		const boundExpression = this.bindExpression(syntax.expression);
 
-		const variable = new VariableSymbol(name, boundExpression.type);
+		let variable = this._scope.tryLookup(name);
 
-		if (!this._scope.tryDeclare(variable)) {
-			this.diagnostics.reportVariableAlreadyDeclared(
+		if (!variable) {
+			this._diagnostics.reportUndefinedName(
 				syntax.identifierToken.span,
 				name
 			);
+			return boundExpression;
+		}
+
+		if (variable.isReadonly) {
+			this._diagnostics.reportCannotAssign(syntax.equalsToken.span, name);
+		}
+
+		if (boundExpression.type !== variable.type) {
+			this._diagnostics.reportCannotConvert(
+				syntax.expression.span,
+				boundExpression.type,
+				variable.type
+			);
+			return boundExpression;
 		}
 
 		return new BoundAssignmentExpression(variable, boundExpression);

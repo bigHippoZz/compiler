@@ -5,23 +5,11 @@ import { SyntaxToken } from "./SyntaxToken";
 
 export class AssignmentExpressionSyntax extends ExpressionSyntax {
 	constructor(
-		private _identifierToken: SyntaxToken,
-		private _equalsToken: SyntaxToken,
-		private _expression: ExpressionSyntax
+		public identifierToken: SyntaxToken,
+		public equalsToken: SyntaxToken,
+		public expression: ExpressionSyntax
 	) {
 		super();
-	}
-
-	public get identifierToken(): SyntaxToken {
-		return this._identifierToken;
-	}
-
-	public get equalsToken(): SyntaxToken {
-		return this._equalsToken;
-	}
-
-	public get expression(): ExpressionSyntax {
-		return this._expression;
 	}
 
 	public get kind(): SyntaxKind {

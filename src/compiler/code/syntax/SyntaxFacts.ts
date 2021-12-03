@@ -43,6 +43,10 @@ export class SyntaxFacts {
 				return SyntaxKind.TrueKeyword;
 			case "false":
 				return SyntaxKind.FalseKeyword;
+			case "var":
+				return SyntaxKind.VarKeyword;
+			case "let":
+				return SyntaxKind.LetKeyword;
 			default:
 				return SyntaxKind.IdentifierToken;
 		}
@@ -92,10 +96,20 @@ export class SyntaxFacts {
 				return "(";
 			case SyntaxKind.CloseParenthesesToken:
 				return ")";
+			case SyntaxKind.OpenBraceToken:
+				return "{";
+			case SyntaxKind.CloseBraceToken:
+				return "}";
+
 			case SyntaxKind.TrueKeyword:
 				return "true";
 			case SyntaxKind.FalseKeyword:
 				return "false";
+
+			case SyntaxKind.VarKeyword:
+				return "var";
+			case SyntaxKind.LetKeyword:
+				return "let";
 			default:
 				return null;
 		}

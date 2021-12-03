@@ -2,27 +2,20 @@ import { ExpressionSyntax } from "./ExpressionSyntax";
 import { SyntaxToken } from "./SyntaxToken";
 import { SyntaxKind } from "./SyntaxKind";
 import { SyntaxNode } from "./SyntaxNode";
+import { StatementSyntax } from "./StatementSyntax";
 
 export class CompilationUnitSyntax extends SyntaxNode {
 	constructor(
-		private _expression: ExpressionSyntax,
-		private _endOfFileToken: SyntaxToken
+		public statement: StatementSyntax,
+		public endOfFileToken: SyntaxToken
 	) {
 		super();
-	}
-
-	public get endOfFileToken(): SyntaxToken {
-		return this._endOfFileToken;
-	}
-
-	public get expression(): ExpressionSyntax {
-		return this._expression;
 	}
 
 	public get kind(): SyntaxKind {
 		return SyntaxKind.CompilationUnit;
 	}
 	public getChildren(): SyntaxNode[] {
-		return [this.expression];
+		return [this.statement];
 	}
 }

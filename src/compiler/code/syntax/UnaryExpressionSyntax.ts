@@ -5,18 +5,10 @@ import { SyntaxToken } from "./SyntaxToken";
 
 export class UnaryExpressionSyntax extends ExpressionSyntax {
 	constructor(
-		private _operatorToken: SyntaxToken,
-		private _operand: ExpressionSyntax
+		public operatorToken: SyntaxToken,
+		public operand: ExpressionSyntax
 	) {
 		super();
-	}
-
-	public get operand(): ExpressionSyntax {
-		return this._operand;
-	}
-
-	public get operatorToken(): SyntaxToken {
-		return this._operatorToken;
 	}
 
 	public get kind(): SyntaxKind {

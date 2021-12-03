@@ -1,28 +1,12 @@
-import { BoundExpression } from "./BoundExpression";
 import { VariableSymbol } from "../VariableSymbol";
 import { Diagnostic } from "../Diagnostic";
+import { BoundStatement } from "./BoundStatement";
 
 export class BoundGlobalScope {
 	constructor(
-		private _previous: BoundGlobalScope | null,
-		private readonly _diagnostics: Array<Diagnostic>,
-		private _variables: Array<VariableSymbol>,
-		private _expression: BoundExpression
+		public previous: BoundGlobalScope | null,
+		public readonly diagnostics: Array<Diagnostic>,
+		public variables: Array<VariableSymbol>,
+		public statement: BoundStatement
 	) {}
-
-	public get previous(): BoundGlobalScope | null {
-		return this._previous;
-	}
-
-	public get diagnostics(): Array<Diagnostic> {
-		return this._diagnostics;
-	}
-
-	public get variables(): Array<VariableSymbol> {
-		return this._variables;
-	}
-
-	public get expression(): BoundExpression {
-		return this._expression;
-	}
 }
