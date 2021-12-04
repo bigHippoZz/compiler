@@ -14,6 +14,7 @@ import {
 } from "./binding/BoundStatement";
 import { BoundBlockStatement } from "./binding/BoundBlockStatement";
 import { BoundExpressionStatement } from "./binding/BoundExpressionStatement";
+import { BoundIfStatement } from "./binding/BoundIfStatement";
 
 export class Evaluator {
 	private _lastValue: any;
@@ -45,6 +46,10 @@ export class Evaluator {
 				);
 				break;
 
+			case BoundNodeKind.IfStatement:
+				this.evaluateIfStatement(node as BoundIfStatement);
+				break;
+
 			case BoundNodeKind.ExpressionStatement:
 				this.evaluateExpressionStatement(
 					node as BoundExpressionStatement
@@ -64,6 +69,15 @@ export class Evaluator {
 	private evaluateBlockStatement(node: BoundBlockStatement): void {
 		for (const statement of node.statements) {
 			this._evaluateStatement(statement);
+		}
+	}
+
+	private evaluateIfStatement(node: BoundIfStatement) {
+		const condition = this._evaluateExpression(node.condition) as boolean;
+		if (condition) {
+			this._evaluateStatement(node.thenStatement);
+		} else if (node.elseStatement) {
+			this._evaluateStatement(node.elseStatement);
 		}
 	}
 
@@ -145,6 +159,15 @@ export class Evaluator {
 				return left === right;
 			case BoundBinaryOperatorKind.NotEquals:
 				return left !== right;
+
+			case BoundBinaryOperatorKind.Greater:
+				return left > right;
+			case BoundBinaryOperatorKind.GreaterOrEquals:
+				return left >= right;
+			case BoundBinaryOperatorKind.Less:
+				return left < right;
+			case BoundBinaryOperatorKind.LessOrEquals:
+				return left <= right;
 			default:
 				`Unexpected binary operator ${node.operate}`;
 		}

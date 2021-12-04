@@ -23,4 +23,21 @@ export enum BoundBinaryOperatorKind {
 	Equals,
 
 	NotEquals,
+
+	/**
+	 *  <
+	 */
+	Less,
+	/**
+	 * <=
+	 */
+	LessOrEquals,
+	/**
+	 *  >
+	 */
+	Greater,
+	/**
+	 * >=
+	 */
+	GreaterOrEquals,
 }

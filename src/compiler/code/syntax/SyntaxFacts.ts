@@ -25,9 +25,15 @@ export class SyntaxFacts {
 			case SyntaxKind.PlusToken:
 			case SyntaxKind.MinusToken:
 				return 4;
+
 			case SyntaxKind.EqualsEqualsToken:
 			case SyntaxKind.BangEqualsToken:
+			case SyntaxKind.LessToken:
+			case SyntaxKind.LessOrEqualsToken:
+			case SyntaxKind.GreaterToken:
+			case SyntaxKind.GreaterOrEqualsToken:
 				return 3;
+
 			case SyntaxKind.AmpersandAmpersandToken:
 				return 2;
 			case SyntaxKind.PipePipeToken:
@@ -46,7 +52,10 @@ export class SyntaxFacts {
 			case "var":
 				return SyntaxKind.VarKeyword;
 			case "let":
-				return SyntaxKind.LetKeyword;
+			case "if":
+				return SyntaxKind.IfKeyword;
+			case "else":
+				return SyntaxKind.ElseKeyword;
 			default:
 				return SyntaxKind.IdentifierToken;
 		}
@@ -82,8 +91,19 @@ export class SyntaxFacts {
 				return "/";
 			case SyntaxKind.BangToken:
 				return "!";
+
 			case SyntaxKind.EqualsToken:
 				return "=";
+
+			case SyntaxKind.GreaterToken:
+				return ">";
+			case SyntaxKind.GreaterOrEqualsToken:
+				return ">=";
+			case SyntaxKind.LessToken:
+				return "<";
+			case SyntaxKind.LessOrEqualsToken:
+				return "<=";
+
 			case SyntaxKind.AmpersandAmpersandToken:
 				return "&&";
 			case SyntaxKind.PipePipeToken:
@@ -110,6 +130,12 @@ export class SyntaxFacts {
 				return "var";
 			case SyntaxKind.LetKeyword:
 				return "let";
+
+			case SyntaxKind.IfKeyword:
+				return "if";
+			case SyntaxKind.ElseKeyword:
+				return "else";
+
 			default:
 				return null;
 		}

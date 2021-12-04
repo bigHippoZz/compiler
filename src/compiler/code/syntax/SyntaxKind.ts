@@ -80,6 +80,23 @@ export enum SyntaxKind {
 	 *  =
 	 */
 	EqualsToken = "EqualsToken",
+	/**
+	 *  <=
+	 */
+	LessOrEqualsToken = "LessOrEqualsToken",
+	/**
+	 *  <
+	 */
+	LessToken = "LessToken",
+	/**
+	 * >=
+	 */
+	GreaterOrEqualsToken = "GreaterOrEqualsToken",
+
+	/**
+	 * >
+	 */
+	GreaterToken = "GreaterToken",
 
 	////////////////////////////////////////////////////////////////
 	///  expression
@@ -112,6 +129,8 @@ export enum SyntaxKind {
 	FalseKeyword = "FalseKeyword",
 	VarKeyword = "VarKeyword",
 	LetKeyword = "LetKeyword",
+	IfKeyword = "IfKeyword",
+	ElseKeyword = "ElseKeyword",
 	////////////////////////////////////////////////////////////////
 	///  Nodes
 	////////////////////////////////////////////////////////////////
@@ -123,4 +142,6 @@ export enum SyntaxKind {
 	BlockStatement = "BlockStatement",
 	ExpressionStatement = "ExpressionStatementSyntax",
 	VariableDeclaration = "VariableDeclaration",
+	IfStatement = "IfStatement",
+	ElseClause = "ElseClause",
 }

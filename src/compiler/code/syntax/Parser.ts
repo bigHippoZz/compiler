@@ -16,6 +16,8 @@ import { StatementSyntax } from "./StatementSyntax";
 import { ExpressionStatementSyntax } from "./ExpressionStatementSyntax";
 import { BlockStatementSyntax } from "./BlockStatementSyntax";
 import { VariableDeclarationSyntax } from "./VariableDeclarationSyntax";
+import { IfStatementSyntax } from "./IfStatementSyntax";
+import { ElseClauseSyntax } from "./ElseClauseSyntax";
 
 export class Parser {
 	private _syntaxTokens: SyntaxToken[] = [];
@@ -78,13 +80,24 @@ export class Parser {
 		return new SyntaxToken(kind, this.current.position, null, null);
 	}
 
-	/**
-	 * 解析二进制的声明语句
-	 * @returns
-	 */
-	private parseExpressionStatement(): ExpressionStatementSyntax {
-		const expression = this.parseExpression();
-		return new ExpressionStatementSyntax(expression);
+	////////////////////////////////////////////////////////////////
+	// STATEMENT
+	////////////////////////////////////////////////////////////////
+
+	private parseStatement(): StatementSyntax {
+		switch (this.current.kind) {
+			case SyntaxKind.OpenBraceToken:
+				return this.parseBlockStatement();
+			case SyntaxKind.VarKeyword:
+			case SyntaxKind.LetKeyword:
+				return this.parseVariableDeclaration();
+
+			case SyntaxKind.IfKeyword:
+				return this.parseIfStatement();
+
+			default:
+				return this.parseExpressionStatement();
+		}
 	}
 
 	private parseBlockStatement() {
@@ -110,16 +123,13 @@ export class Parser {
 		);
 	}
 
-	private parseStatement(): StatementSyntax {
-		switch (this.current.kind) {
-			case SyntaxKind.OpenBraceToken:
-				return this.parseBlockStatement();
-			case SyntaxKind.VarKeyword:
-			case SyntaxKind.LetKeyword:
-				return this.parseVariableDeclaration();
-			default:
-				return this.parseExpressionStatement();
-		}
+	/**
+	 * 解析二进制的声明语句
+	 * @returns
+	 */
+	private parseExpressionStatement(): ExpressionStatementSyntax {
+		const expression = this.parseExpression();
+		return new ExpressionStatementSyntax(expression);
 	}
 
 	private parseVariableDeclaration(): VariableDeclarationSyntax {
@@ -137,6 +147,54 @@ export class Parser {
 			equalsToken,
 			initializer
 		);
+	}
+
+	private parseIfStatement(): IfStatementSyntax {
+		const keyword = this.matchToken(SyntaxKind.IfKeyword);
+		const condition = this.parseExpression();
+		const statement = this.parseStatement();
+		// null
+		const elseClause = this.parseElseClause();
+
+		return new IfStatementSyntax(keyword, condition, statement, elseClause);
+	}
+
+	private parseElseClause(): Nullable<ElseClauseSyntax> {
+		if (this.current.kind !== SyntaxKind.ElseKeyword) {
+			return null;
+		}
+
+		const keyword = this.nextToken();
+
+		const statement = this.parseStatement();
+
+		return new ElseClauseSyntax(keyword, statement);
+	}
+
+	////////////////////////////////////////////////////////////////
+	// EXPRESSION
+	////////////////////////////////////////////////////////////////
+	private parseExpression(): ExpressionSyntax {
+		return this.parseAssignmentExpression();
+	}
+
+	private parseAssignmentExpression():
+		| AssignmentExpressionSyntax
+		| ExpressionSyntax {
+		if (
+			this.peek(0).kind === SyntaxKind.IdentifierToken &&
+			this.peek(1).kind === SyntaxKind.EqualsToken
+		) {
+			const identifierToken = this.nextToken();
+			const operatorToken = this.nextToken();
+			const right = this.parseAssignmentExpression();
+			return new AssignmentExpressionSyntax(
+				identifierToken,
+				operatorToken,
+				right
+			);
+		}
+		return this.parseBinaryExpression();
 	}
 
 	private parseBinaryExpression(
@@ -174,29 +232,6 @@ export class Parser {
 			left = new BinaryExpressionSyntax(left, operatorToken, right);
 		}
 		return left;
-	}
-
-	private parseExpression(): ExpressionSyntax {
-		return this.parseAssignmentExpression();
-	}
-
-	private parseAssignmentExpression():
-		| AssignmentExpressionSyntax
-		| ExpressionSyntax {
-		if (
-			this.peek(0).kind === SyntaxKind.IdentifierToken &&
-			this.peek(1).kind === SyntaxKind.EqualsToken
-		) {
-			const identifierToken = this.nextToken();
-			const operatorToken = this.nextToken();
-			const right = this.parseAssignmentExpression();
-			return new AssignmentExpressionSyntax(
-				identifierToken,
-				operatorToken,
-				right
-			);
-		}
-		return this.parseBinaryExpression();
 	}
 
 	private parsePrimaryExpression(): ExpressionSyntax {

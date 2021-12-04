@@ -172,6 +172,28 @@ export class Lex {
 				}
 				break;
 
+			case ">":
+				this.next();
+				// @ts-ignore
+				if (this.current !== "=") {
+					this._kind = SyntaxKind.GreaterToken;
+				} else {
+					this._kind = SyntaxKind.GreaterOrEqualsToken;
+					this.next();
+				}
+				break;
+
+			case "<":
+				this.next();
+				// @ts-ignore
+				if (this.current !== "=") {
+					this._kind = SyntaxKind.LessToken;
+				} else {
+					this._kind = SyntaxKind.LessOrEqualsToken;
+					this.next();
+				}
+				break;
+
 			case this._validateRE(StringTools.numberRE):
 				this.readNumberToken();
 				break;

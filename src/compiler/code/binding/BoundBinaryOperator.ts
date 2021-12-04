@@ -71,19 +71,21 @@ export class BoundBinaryOperator {
 		),
 
 		////////////////////////////////
-		// != ==
+		// != == > >= < <=
 		////////////////////////////////
 
 		new BoundBinaryOperator(
 			SyntaxKind.EqualsEqualsToken,
 			BoundBinaryOperatorKind.Equals,
 			"number",
+			"number",
 			"boolean"
 		),
 
 		new BoundBinaryOperator(
 			SyntaxKind.BangEqualsToken,
 			BoundBinaryOperatorKind.NotEquals,
+			"number",
 			"number",
 			"boolean"
 		),
@@ -92,6 +94,7 @@ export class BoundBinaryOperator {
 			SyntaxKind.EqualsEqualsToken,
 			BoundBinaryOperatorKind.Equals,
 			"boolean",
+			"boolean",
 			"boolean"
 		),
 
@@ -99,7 +102,33 @@ export class BoundBinaryOperator {
 			SyntaxKind.BangEqualsToken,
 			BoundBinaryOperatorKind.NotEquals,
 			"boolean",
+			"boolean",
 			"boolean"
+		),
+
+		new BoundBinaryOperator(
+			SyntaxKind.LessToken,
+			BoundBinaryOperatorKind.Less,
+			"number",
+			"number"
+		),
+		new BoundBinaryOperator(
+			SyntaxKind.LessOrEqualsToken,
+			BoundBinaryOperatorKind.LessOrEquals,
+			"number",
+			"number"
+		),
+		new BoundBinaryOperator(
+			SyntaxKind.GreaterToken,
+			BoundBinaryOperatorKind.Greater,
+			"number",
+			"number"
+		),
+		new BoundBinaryOperator(
+			SyntaxKind.GreaterOrEqualsToken,
+			BoundBinaryOperatorKind.GreaterOrEquals,
+			"number",
+			"number"
 		),
 
 		////////////////////////////////

@@ -25,6 +25,8 @@ import { BoundStatement, BoundVariableDeclaration } from "./BoundStatement";
 import { BoundBlockStatement } from "./BoundBlockStatement";
 import { BoundExpressionStatement } from "./BoundExpressionStatement";
 import { VariableDeclarationSyntax } from "../syntax/VariableDeclarationSyntax";
+import { IfStatementSyntax } from "../syntax/IfStatementSyntax";
+import { BoundIfStatement } from "./BoundIfStatement";
 
 export class Binder {
 	private readonly _diagnostics: DiagnosticsBag = new DiagnosticsBag();
@@ -98,14 +100,20 @@ export class Binder {
 		switch (syntax.kind) {
 			case SyntaxKind.BlockStatement:
 				return this.bindBlockStatement(syntax as BlockStatementSyntax);
+
 			case SyntaxKind.VariableDeclaration:
 				return this.bindVariableDeclaration(
 					syntax as VariableDeclarationSyntax
 				);
+
 			case SyntaxKind.ExpressionStatement:
 				return this.bindExpressionStatement(
 					syntax as ExpressionStatementSyntax
 				);
+
+			case SyntaxKind.IfStatement:
+				return this.bindIfStatement(syntax as IfStatementSyntax);
+
 			default:
 				throw new Error(`Unexpected syntax ${syntax.kind}`);
 		}
@@ -162,43 +170,79 @@ export class Binder {
 		return new BoundExpressionStatement(expression);
 	}
 
+	private bindIfStatement(syntax: IfStatementSyntax) {
+		const conditionExpression = this.bindExpression(
+			syntax.condition,
+			"boolean"
+		);
+
+		const thenStatement = this.bindStatement(syntax.thenStatement);
+
+		const elseStatement =
+			syntax.elseClause && this.bindStatement(syntax.elseClause);
+
+		return new BoundIfStatement(
+			conditionExpression,
+			thenStatement,
+			elseStatement
+		);
+	}
+
 	////////////////////////////////////////////////////////////////
 	// EXPRESSION 表达式
 	////////////////////////////////////////////////////////////////
+	public bindExpression(
+		syntax: ExpressionSyntax,
+		type?: string
+	): BoundExpression {
+		const anonymousFn = (syntax: ExpressionSyntax) => {
+			switch (syntax.kind) {
+				case SyntaxKind.ParenthesizedExpression:
+					return this.bindParenthesizedExpression(
+						syntax as ParenthesizedExpressionSyntax
+					);
 
-	public bindExpression(syntax: ExpressionSyntax): BoundExpression {
-		switch (syntax.kind) {
-			case SyntaxKind.ParenthesizedExpression:
-				return this.bindParenthesizedExpression(
-					syntax as ParenthesizedExpressionSyntax
-				);
+				case SyntaxKind.LiteralExpression:
+					return this.bindLiteralExpression(
+						syntax as LiteralExpressionSyntax
+					);
 
-			case SyntaxKind.LiteralExpression:
-				return this.bindLiteralExpression(
-					syntax as LiteralExpressionSyntax
-				);
+				case SyntaxKind.NamedExpression:
+					return this.bindNameExpression(
+						syntax as NamedExpressionSyntax
+					);
 
-			case SyntaxKind.NamedExpression:
-				return this.bindNameExpression(syntax as NamedExpressionSyntax);
+				case SyntaxKind.AssignmentExpression:
+					return this.bindAssignmentExpression(
+						syntax as AssignmentExpressionSyntax
+					);
 
-			case SyntaxKind.AssignmentExpression:
-				return this.bindAssignmentExpression(
-					syntax as AssignmentExpressionSyntax
-				);
+				case SyntaxKind.UnaryExpression:
+					return this.bindUnaryExpression(
+						syntax as UnaryExpressionSyntax
+					);
 
-			case SyntaxKind.UnaryExpression:
-				return this.bindUnaryExpression(
-					syntax as UnaryExpressionSyntax
-				);
+				case SyntaxKind.BinaryExpression:
+					return this.bindBinaryExpression(
+						syntax as BinaryExpressionSyntax
+					);
 
-			case SyntaxKind.BinaryExpression:
-				return this.bindBinaryExpression(
-					syntax as BinaryExpressionSyntax
-				);
+				default:
+					throw new Error(`Unexpected syntax ${syntax.kind}`);
+			}
+		};
 
-			default:
-				throw new Error(`Unexpected syntax ${syntax.kind}`);
+		const result = anonymousFn(syntax);
+
+		if (type && type !== result.type) {
+			this.diagnostics.reportCannotConvert(
+				syntax.span,
+				result.type,
+				type
+			);
 		}
+
+		return result;
 	}
 
 	/**
