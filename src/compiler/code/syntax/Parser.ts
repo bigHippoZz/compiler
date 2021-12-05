@@ -18,6 +18,7 @@ import { BlockStatementSyntax } from "./BlockStatementSyntax";
 import { VariableDeclarationSyntax } from "./VariableDeclarationSyntax";
 import { IfStatementSyntax } from "./IfStatementSyntax";
 import { ElseClauseSyntax } from "./ElseClauseSyntax";
+import { WhileStatementSyntax } from "./WhileStatementSyntax";
 
 export class Parser {
 	private _syntaxTokens: SyntaxToken[] = [];
@@ -95,6 +96,9 @@ export class Parser {
 			case SyntaxKind.IfKeyword:
 				return this.parseIfStatement();
 
+			case SyntaxKind.WhileKeyword:
+				return this.parseWhileStatement();
+
 			default:
 				return this.parseExpressionStatement();
 		}
@@ -169,6 +173,16 @@ export class Parser {
 		const statement = this.parseStatement();
 
 		return new ElseClauseSyntax(keyword, statement);
+	}
+
+	private parseWhileStatement() {
+		const keyword = this.matchToken(SyntaxKind.WhileKeyword);
+
+		const expression = this.parseExpression();
+
+		const body = this.parseStatement();
+
+		return new WhileStatementSyntax(keyword, expression, body);
 	}
 
 	////////////////////////////////////////////////////////////////

@@ -1,3 +1,4 @@
+import { BoundWhileStatement } from "./BoundWhileStatement";
 import { ExpressionSyntax } from "../syntax/ExpressionSyntax";
 import { SyntaxKind } from "../syntax/SyntaxKind";
 import { UnaryExpressionSyntax } from "../syntax/UnaryExpressionSyntax";
@@ -21,12 +22,14 @@ import { BoundGlobalScope } from "./BoundGlobalScope";
 import { CompilationUnitSyntax } from "../syntax/CompilationUnitSyntax";
 import { BlockStatementSyntax } from "../syntax/BlockStatementSyntax";
 import { ExpressionStatementSyntax } from "../syntax/ExpressionStatementSyntax";
-import { BoundStatement, BoundVariableDeclaration } from "./BoundStatement";
+import { BoundStatement } from "./BoundStatement";
+import { BoundVariableDeclaration } from "./BoundVariableDeclaration";
 import { BoundBlockStatement } from "./BoundBlockStatement";
 import { BoundExpressionStatement } from "./BoundExpressionStatement";
 import { VariableDeclarationSyntax } from "../syntax/VariableDeclarationSyntax";
 import { IfStatementSyntax } from "../syntax/IfStatementSyntax";
 import { BoundIfStatement } from "./BoundIfStatement";
+import { WhileStatementSyntax } from "../syntax/WhileStatementSyntax";
 
 export class Binder {
 	private readonly _diagnostics: DiagnosticsBag = new DiagnosticsBag();
@@ -114,6 +117,9 @@ export class Binder {
 			case SyntaxKind.IfStatement:
 				return this.bindIfStatement(syntax as IfStatementSyntax);
 
+			case SyntaxKind.WhileStatement:
+				return this.bindWhileStatement(syntax as WhileStatementSyntax);
+
 			default:
 				throw new Error(`Unexpected syntax ${syntax.kind}`);
 		}
@@ -179,13 +185,23 @@ export class Binder {
 		const thenStatement = this.bindStatement(syntax.thenStatement);
 
 		const elseStatement =
-			syntax.elseClause && this.bindStatement(syntax.elseClause);
+			syntax.elseClause &&
+			this.bindStatement(syntax.elseClause.elseStatement);
 
 		return new BoundIfStatement(
 			conditionExpression,
 			thenStatement,
 			elseStatement
 		);
+	}
+
+	private bindWhileStatement(
+		syntax: WhileStatementSyntax
+	): BoundWhileStatement {
+		const condition = this.bindExpression(syntax.condition, "boolean");
+		const body = this.bindStatement(syntax.body);
+
+		return new BoundWhileStatement(condition, body);
 	}
 
 	////////////////////////////////////////////////////////////////

@@ -8,13 +8,12 @@ import { GlobalVariableDeclaration } from "./Compilation";
 import { BoundVariableExpression } from "./binding/BoundVariableExpression";
 import { BoundAssignmentExpression } from "./binding/BoundAssignmentExpression";
 import { BoundNodeKind } from "./binding/BoundNodeKind";
-import {
-	BoundStatement,
-	BoundVariableDeclaration,
-} from "./binding/BoundStatement";
+import { BoundStatement } from "./binding/BoundStatement";
+import { BoundVariableDeclaration } from "./binding/BoundVariableDeclaration";
 import { BoundBlockStatement } from "./binding/BoundBlockStatement";
 import { BoundExpressionStatement } from "./binding/BoundExpressionStatement";
 import { BoundIfStatement } from "./binding/BoundIfStatement";
+import { BoundWhileStatement } from "./binding/BoundWhileStatement";
 
 export class Evaluator {
 	private _lastValue: any;
@@ -50,6 +49,10 @@ export class Evaluator {
 				this.evaluateIfStatement(node as BoundIfStatement);
 				break;
 
+			case BoundNodeKind.WhileStatement:
+				this.evaluateWhileStatement(node as BoundWhileStatement);
+				break;
+
 			case BoundNodeKind.ExpressionStatement:
 				this.evaluateExpressionStatement(
 					node as BoundExpressionStatement
@@ -78,6 +81,12 @@ export class Evaluator {
 			this._evaluateStatement(node.thenStatement);
 		} else if (node.elseStatement) {
 			this._evaluateStatement(node.elseStatement);
+		}
+	}
+
+	private evaluateWhileStatement(syntax: BoundWhileStatement) {
+		while (this._evaluateExpression(syntax.condition)) {
+			this._evaluateStatement(syntax.body);
 		}
 	}
 

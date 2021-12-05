@@ -110,25 +110,29 @@ export class BoundBinaryOperator {
 			SyntaxKind.LessToken,
 			BoundBinaryOperatorKind.Less,
 			"number",
-			"number"
+			"number",
+			"boolean"
 		),
 		new BoundBinaryOperator(
 			SyntaxKind.LessOrEqualsToken,
 			BoundBinaryOperatorKind.LessOrEquals,
 			"number",
-			"number"
+			"number",
+			"boolean"
 		),
 		new BoundBinaryOperator(
 			SyntaxKind.GreaterToken,
 			BoundBinaryOperatorKind.Greater,
 			"number",
-			"number"
+			"number",
+			"boolean"
 		),
 		new BoundBinaryOperator(
 			SyntaxKind.GreaterOrEqualsToken,
 			BoundBinaryOperatorKind.GreaterOrEquals,
 			"number",
-			"number"
+			"number",
+			"boolean"
 		),
 
 		////////////////////////////////

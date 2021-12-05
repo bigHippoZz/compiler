@@ -52,10 +52,14 @@ export class SyntaxFacts {
 			case "var":
 				return SyntaxKind.VarKeyword;
 			case "let":
+				return SyntaxKind.LetKeyword;
 			case "if":
 				return SyntaxKind.IfKeyword;
 			case "else":
 				return SyntaxKind.ElseKeyword;
+			case "while":
+				return SyntaxKind.WhileKeyword;
+
 			default:
 				return SyntaxKind.IdentifierToken;
 		}
@@ -135,6 +139,12 @@ export class SyntaxFacts {
 				return "if";
 			case SyntaxKind.ElseKeyword:
 				return "else";
+
+			case SyntaxKind.WhileKeyword:
+				return "while";
+
+			case SyntaxKind.ForKeyword:
+				return "for";
 
 			default:
 				return null;

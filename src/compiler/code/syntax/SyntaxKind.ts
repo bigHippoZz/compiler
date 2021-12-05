@@ -131,6 +131,8 @@ export enum SyntaxKind {
 	LetKeyword = "LetKeyword",
 	IfKeyword = "IfKeyword",
 	ElseKeyword = "ElseKeyword",
+	WhileKeyword = "WhileKeyword",
+	ForKeyword = "ForKeyword",
 	////////////////////////////////////////////////////////////////
 	///  Nodes
 	////////////////////////////////////////////////////////////////
@@ -144,4 +146,5 @@ export enum SyntaxKind {
 	VariableDeclaration = "VariableDeclaration",
 	IfStatement = "IfStatement",
 	ElseClause = "ElseClause",
+	WhileStatement = "WhileStatement",
 }

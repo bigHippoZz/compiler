@@ -6,7 +6,7 @@ import { StatementSyntax } from "./StatementSyntax";
 export class ElseClauseSyntax extends SyntaxNode {
 	constructor(
 		public elseKeyword: SyntaxToken,
-		public thenStatement: StatementSyntax
+		public elseStatement: StatementSyntax
 	) {
 		super();
 	}
@@ -14,6 +14,6 @@ export class ElseClauseSyntax extends SyntaxNode {
 		return SyntaxKind.ElseClause;
 	}
 	public getChildren(): SyntaxNode[] {
-		return [this.elseKeyword, this.thenStatement];
+		return [this.elseKeyword, this.elseStatement];
 	}
 }
