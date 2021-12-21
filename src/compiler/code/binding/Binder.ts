@@ -30,6 +30,8 @@ import { VariableDeclarationSyntax } from "../syntax/VariableDeclarationSyntax";
 import { IfStatementSyntax } from "../syntax/IfStatementSyntax";
 import { BoundIfStatement } from "./BoundIfStatement";
 import { WhileStatementSyntax } from "../syntax/WhileStatementSyntax";
+import { ForStatementSyntax } from "../syntax/ForStatementSyntax";
+import { BoundForStatement } from "./BoundForStatement";
 
 export class Binder {
 	private readonly _diagnostics: DiagnosticsBag = new DiagnosticsBag();
@@ -103,26 +105,43 @@ export class Binder {
 		switch (syntax.kind) {
 			case SyntaxKind.BlockStatement:
 				return this.bindBlockStatement(syntax as BlockStatementSyntax);
-
 			case SyntaxKind.VariableDeclaration:
 				return this.bindVariableDeclaration(
 					syntax as VariableDeclarationSyntax
 				);
-
 			case SyntaxKind.ExpressionStatement:
 				return this.bindExpressionStatement(
 					syntax as ExpressionStatementSyntax
 				);
-
 			case SyntaxKind.IfStatement:
 				return this.bindIfStatement(syntax as IfStatementSyntax);
-
 			case SyntaxKind.WhileStatement:
 				return this.bindWhileStatement(syntax as WhileStatementSyntax);
+
+			case SyntaxKind.ForStatement:
+				return this.bindForStatement(syntax as ForStatementSyntax);
 
 			default:
 				throw new Error(`Unexpected syntax ${syntax.kind}`);
 		}
+	}
+
+	private bindForStatement(syntax: ForStatementSyntax) {
+		const lowerBound = this.bindExpression(syntax.lowerBound, "boolean");
+		const upperBound = this.bindExpression(syntax.upperBound, "boolean");
+
+		this._scope = new BoundScope(this._scope);
+		const name = syntax.identifier.text!;
+		const variable = new VariableSymbol(name, true, "number");
+		if (!this._scope.tryDeclare(variable)) {
+			this.diagnostics.reportVariableAlreadyDeclared(
+				syntax.identifier.span,
+				name
+			);
+		}
+		const body = this.bindStatement(syntax.body);
+		this._scope = this._scope.parent!;
+		return new BoundForStatement(variable, lowerBound, upperBound, body);
 	}
 
 	/**

@@ -5,6 +5,7 @@ specifiers:
   '@types/jest': ^27.0.3
   '@types/node': ^16.11.8
   '@vitejs/plugin-vue': ^1.9.3
+  html5parser: ^2.0.2
   htmlparser2: ^7.2.0
   jest: ^27.3.1
   ts-jest: ^27.0.7
@@ -18,6 +19,7 @@ specifiers:
   xterm-theme: ^1.1.0
 
 dependencies:
+  html5parser: registry.npmmirror.com/html5parser/2.0.2
   htmlparser2: registry.npmmirror.com/htmlparser2/7.2.0
   vue: registry.npmmirror.com/vue/3.2.23
   xterm: registry.npmmirror.com/xterm/4.15.0
@@ -1815,6 +1817,12 @@ packages:
       universalify: registry.nlark.com/universalify/0.1.2
     dev: true
 
+  registry.nlark.com/tslib/2.3.1:
+    resolution: {integrity: sha1-6KM1rdXOrlGqJh0ypJAVjvBC7wE=, registry: http://registry.npm.taobao.org/, tarball: https://registry.nlark.com/tslib/download/tslib-2.3.1.tgz}
+    name: tslib
+    version: 2.3.1
+    dev: false
+
   registry.nlark.com/type-check/0.3.2:
     resolution: {integrity: sha1-WITKtRLPHTVeP7eE8wgEsrUg23I=, registry: http://registry.npm.taobao.org/, tarball: https://registry.nlark.com/type-check/download/type-check-0.3.2.tgz}
     name: type-check
@@ -3558,6 +3566,14 @@ packages:
     name: graceful-fs
     version: 4.2.8
     dev: true
+
+  registry.npmmirror.com/html5parser/2.0.2:
+    resolution: {integrity: sha1-3VBIhHYeAk5oLhU17ptbmXzEcpM=, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/html5parser/download/html5parser-2.0.2.tgz}
+    name: html5parser
+    version: 2.0.2
+    dependencies:
+      tslib: registry.nlark.com/tslib/2.3.1
+    dev: false
 
   registry.npmmirror.com/htmlparser2/7.2.0:
     resolution: {integrity: sha512-H7MImA4MS6cw7nbyURtLPO1Tms7C5H602LRETv95z1MxO/7CP7rDVROehUYeYBUYEON94NXXDEPmZuq+hX4sog==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/htmlparser2/download/htmlparser2-7.2.0.tgz?cache=0&sync_timestamp=1636641904600&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Fhtmlparser2%2Fdownload%2Fhtmlparser2-7.2.0.tgz}

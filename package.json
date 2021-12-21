@@ -9,6 +9,7 @@
 		"test": "jest"
 	},
 	"dependencies": {
+		"html5parser": "^2.0.2",
 		"htmlparser2": "^7.2.0",
 		"vue": "^3.2.16",
 		"xterm": "^4.15.0",

@@ -147,4 +147,5 @@ export enum SyntaxKind {
 	IfStatement = "IfStatement",
 	ElseClause = "ElseClause",
 	WhileStatement = "WhileStatement",
+	ForStatement = "ForStatement",
 }

@@ -3,7 +3,7 @@ import { VariableSymbol } from "../VariableSymbol";
 export class BoundScope {
 	private _variables: Record<string, VariableSymbol> = Object.create(null);
 
-	constructor(public parent: BoundScope | null) {}
+	constructor(public parent: Nullable<BoundScope>) {}
 
 	public tryDeclare(variable: VariableSymbol): boolean {
 		if (variable.name in this._variables) {
@@ -14,7 +14,7 @@ export class BoundScope {
 		return true;
 	}
 
-	public tryLookup(name: string): VariableSymbol | null {
+	public tryLookup(name: string): Nullable<VariableSymbol> {
 		if (name in this._variables) {
 			return this._variables[name];
 		}

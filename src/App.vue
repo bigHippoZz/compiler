@@ -1,4 +1,12 @@
-<template>
+<template>{{ { name: "hello" } }}</template>
+
+<script setup lang="ts">
+import { ref, unref } from "vue";
+const numberRef = ref(10);
+</script>
+
+<!-- <template>
+	<div></div>
 	<a-row>
 		<a-col :span="18">
 			<a-textarea
@@ -10,34 +18,30 @@
 			/>
 		</a-col>
 		<a-col :span="6">
-			<a-button type="primary" @click="show = !show">{{
-				show ? "close" : "open"
-			}}</a-button>
+			<a-button type="primary" @click="show = !show">{{ show ? "close" : "open" }}</a-button>
 		</a-col>
 	</a-row>
 	<div v-show="show">
-		<div
-			class="treeNode"
-			v-html="item"
-			v-for="item in tree"
-			:key="item"
-		></div>
+		<div class="treeNode" v-html="item" v-for="item in tree" :key="item"></div>
 	</div>
 	<a-alert v-for="item in alert" :key="item" type="error">{{ item }}</a-alert>
 	<a-divider /> 
 	<h1>{{ result }}</h1>
+
+	{{ (numberRef += 10) }}
 </template>
 
 <script setup lang="ts">
 import { SyntaxTree } from "./compiler/code/syntax/SyntaxTree";
-
-import { FormatTree } from "./compiler/utils/fmt";
 
 import { ref, unref } from "vue";
 
 import { Compilation } from "./compiler/code/Compilation";
 
 import { Diagnostic } from "./compiler/code/Diagnostic";
+import { FormatTree } from "./shared/fmt";
+
+const numberRef = ref(10);
 
 const show = ref<boolean>(true);
 
@@ -61,9 +65,7 @@ const execution = function (event: KeyboardEvent) {
 	console.log("[AbstractSyntaxTree] =>", ast.root);
 
 	////////////////////  后端  ////////////////
-	const compilation = !previous
-		? new Compilation(ast)
-		: previous.continueWith(ast);
+	const compilation = !previous ? new Compilation(ast) : previous.continueWith(ast);
 
 	const evaluate = compilation.evaluate(globalVariables);
 	////////////////////////////////////////////
@@ -90,4 +92,4 @@ const execution = function (event: KeyboardEvent) {
 	font-size: 18px;
 	line-height: 1.8;
 }
-</style>
+</style> -->

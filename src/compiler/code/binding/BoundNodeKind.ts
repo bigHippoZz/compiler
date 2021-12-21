@@ -16,4 +16,5 @@ export enum BoundNodeKind {
 	VariableDeclaration = "VariableDeclaration",
 	IfStatement = "IfStatement",
 	WhileStatement = "WhileStatement",
+	ForStatement = "ForStatement",
 }

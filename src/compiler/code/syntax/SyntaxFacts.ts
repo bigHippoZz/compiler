@@ -59,6 +59,8 @@ export class SyntaxFacts {
 				return SyntaxKind.ElseKeyword;
 			case "while":
 				return SyntaxKind.WhileKeyword;
+			case "for":
+				return SyntaxKind.ForKeyword;
 
 			default:
 				return SyntaxKind.IdentifierToken;

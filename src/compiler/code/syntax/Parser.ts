@@ -13,6 +13,7 @@ import { Lex } from "./Lexer";
 import { SourceText } from "../text/SourceText";
 import { CompilationUnitSyntax } from "./CompilationUnitSyntax";
 import { StatementSyntax } from "./StatementSyntax";
+import { ForStatementSyntax } from "./ForStatementSyntax";
 import { ExpressionStatementSyntax } from "./ExpressionStatementSyntax";
 import { BlockStatementSyntax } from "./BlockStatementSyntax";
 import { VariableDeclarationSyntax } from "./VariableDeclarationSyntax";
@@ -99,6 +100,9 @@ export class Parser {
 			case SyntaxKind.WhileKeyword:
 				return this.parseWhileStatement();
 
+			case SyntaxKind.ForKeyword:
+				return this.parseForStatement();
+
 			default:
 				return this.parseExpressionStatement();
 		}
@@ -183,6 +187,23 @@ export class Parser {
 		const body = this.parseStatement();
 
 		return new WhileStatementSyntax(keyword, expression, body);
+	}
+
+	private parseForStatement(): ForStatementSyntax {
+		const forKeyword = this.matchToken(SyntaxKind.ForKeyword);
+		const identifier = this.matchToken(SyntaxKind.IdentifierToken);
+		const equalsToken = this.matchToken(SyntaxKind.EqualsToken);
+		const lowerBound = this.parseExpression();
+		const upperBound = this.parseExpression();
+		const body = this.parseStatement();
+		return new ForStatementSyntax(
+			forKeyword,
+			identifier,
+			equalsToken,
+			lowerBound,
+			upperBound,
+			body
+		);
 	}
 
 	////////////////////////////////////////////////////////////////

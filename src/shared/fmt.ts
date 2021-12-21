@@ -1,4 +1,4 @@
-import { SyntaxNode } from "../code/syntax/SyntaxNode";
+import { SyntaxNode } from "../compiler/code/syntax/SyntaxNode";
 
 export class FormatTree {
 	public static formatSyntaxTree(tree: SyntaxNode) {

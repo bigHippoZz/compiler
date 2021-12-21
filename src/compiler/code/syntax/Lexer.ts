@@ -1,4 +1,4 @@
-import { StringTools } from "../../utils";
+import { StringTools } from "../../../shared";
 import { SyntaxKind } from "./SyntaxKind";
 import { SyntaxToken } from "./SyntaxToken";
 import { SyntaxFacts } from "./SyntaxFacts";

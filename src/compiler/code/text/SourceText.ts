@@ -25,16 +25,13 @@ export class SourceText {
 		while (lower <= upper) {
 			var index = lower + (upper - lower) / 2;
 			var start = this.lines[index].start;
-
 			if (position == start) return index;
-
 			if (start > position) {
 				upper = index - 1;
 			} else {
 				lower = index + 1;
 			}
 		}
-
 		return lower - 1;
 	}
 
